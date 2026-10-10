@@ -21,11 +21,10 @@ import java.util.List;
 public class ScrapService {
 
     private static final String URL =
-            "https://books.toscrape.com/catalogue/page-1.html";
+            "https://books.toscrape.com/catalogue/page-";
 
-    public List<Product> getProducts() throws IOException {
-
-        Document document = Jsoup.connect(URL)
+    private List<Product> getProductFromPage(String urlPage) throws IOException{
+        Document document = Jsoup.connect(urlPage)
                 .userAgent("ProyectoDocker/1.0")
                 .timeout(10000)
                 .get();
@@ -86,13 +85,16 @@ public class ScrapService {
             );
 
             products.add(product);
+        }
+        return products;
+    }
 
-            System.out.println("Product: " + name);
-            System.out.println("Precio: " + price);
-            System.out.println("Disponibilidad: " + availability);
-            System.out.println("Valoración: " + valoracion);
-            System.out.println("Imagen: " + image);
-            System.out.println("---------------------------");
+    public List<Product> getAllProducts() throws IOException {
+        String url = URL;
+        List<Product> products = new ArrayList<>();
+
+        for(int i = 1; i< 10; i++) {
+            products.addAll(getProductFromPage(url + String.valueOf(i) + ".html"));
         }
 
         saveProducstJson(products);

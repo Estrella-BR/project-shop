@@ -21,7 +21,7 @@ public class ScraperController {
     @GetMapping("/productos")
     public List<Product> getProducts() {
         try {
-            return scraperService.getProducts();
+            return scraperService.getAllProducts();
         } catch (IOException e) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_GATEWAY,

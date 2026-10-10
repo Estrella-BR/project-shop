@@ -1,11 +1,107 @@
-<h1>Productos</h1>
+<header class="library-header">
+  <h1>Biblioteca</h1>
+  @if (allProducts().length > 0) {
+    <p class="library-subtitle">
+      Mostrando {{ rangeStart() }}–{{ rangeEnd() }} de {{ allProducts().length }} volúmenes
+    </p>
+  }
+</header>
 
-@for (product of products(); track $index) {
-  <div class="product-card">
-    <img [src]="product.image" [alt]="product.name" />
-    <h2>{{ product.name }}</h2>
-    <p>Precio: {{ product.price }}</p>
-    <p>Cantidad: {{ product.cuantity }}</p>
-    <a [href]="product.url" target="_blank">Ver más</a>
+@if (allProducts().length === 0) {
+  <p class="empty">La estantería está vacía…</p>
+} @else {
+  <div class="bookshelves">
+    @for (shelf of shelves(); track $index) {
+      <div class="shelf">
+        <div class="shelf-books">
+          @for (product of shelf; track $index) {
+            <div
+              class="book"
+              role="button"
+              tabindex="0"
+              [attr.aria-label]="'Abrir ' + product.name"
+              [style.background]="getBookColor(product)"
+              [style.height.px]="getBookHeight(product)"
+              [style.width.px]="getBookWidth(product)"
+              (click)="openBook(product)"
+              (keydown.enter)="openBook(product)"
+              (keydown.space)="openBook(product); $event.preventDefault()"
+            >
+              <div class="book-thumb">
+                <img [src]="product.image" [alt]="product.name" loading="lazy" />
+              </div>
+
+              <span class="book-spine-title">{{ product.name }}</span>
+            </div>
+          }
+        </div>
+        <div class="shelf-plank"></div>
+      </div>
+    }
+  </div>
+
+  <nav class="pagination">
+    <button class="page-btn" [disabled]="currentPage() === 1" (click)="prevPage()">‹</button>
+    @for (page of pages(); track page) {
+      <button
+        class="page-btn"
+        [class.active]="page === currentPage()"
+        (click)="goToPage(page)"
+      >{{ page }}</button>
+    }
+    <button
+      class="page-btn"
+      [disabled]="currentPage() === totalPages()"
+      (click)="nextPage()"
+    >›</button>
+  </nav>
+}
+
+<!-- ================= LIBRO ABIERTO ================= -->
+@if (selectedBook(); as book) {
+  <div class="book-overlay" (click)="closeBook()">
+    <div class="open-book" (click)="$event.stopPropagation()">
+      <button class="close-btn" (click)="closeBook()" aria-label="Cerrar">×</button>
+
+      <div class="open-book-inner">
+        <!-- Página izquierda: portada + título -->
+        <div class="page page-left">
+          <div class="page-content">
+            <div class="page-cover">
+              <img [src]="book.image" [alt]="book.name" />
+            </div>
+            <h2 class="page-title">{{ book.name }}</h2>
+          </div>
+          <span class="page-number">i</span>
+        </div>
+
+        <!-- Lomo central (pliegue) -->
+        <div class="book-fold"></div>
+
+        <!-- Página derecha: ficha del producto -->
+        <div class="page page-right">
+          <div class="page-content">
+            <h3 class="section-title">Ficha del producto</h3>
+
+            <dl class="product-facts">
+              <dt>Precio</dt>
+              <dd>{{ book.price }}</dd>
+              <dt>Cantidad</dt>
+              <dd>{{ book.cuantity }}</dd>
+            </dl>
+
+            <a
+              class="page-link"
+              [href]="book.url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver más en la tienda →
+            </a>
+          </div>
+          <span class="page-number">1</span>
+        </div>
+      </div>
+    </div>
   </div>
 }
