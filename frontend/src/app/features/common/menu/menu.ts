@@ -8,4 +8,10 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })
-export class MenuComponent {}
+export class MenuComponent {
+
+  options = [
+    { label: 'Home', path: '/' },
+    { label: 'Libros', path: '/products' },
+  ];
+}

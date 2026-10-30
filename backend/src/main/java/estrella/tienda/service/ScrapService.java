@@ -2,8 +2,8 @@
 package estrella.tienda.service;
 
 import estrella.tienda.model.Product;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -17,63 +17,71 @@ import java.util.List;
 @Service
 public class ScrapService {
 
-    @Autowired
-    MercadonaScrapeService mercadonaScrapeService;
+    private final MercadonaScrapeService mercadonaScrapeService;
+    private final BooksToScrapeService booksToScrapeService;
 
-    @Autowired
-    BooksToScrapeService booksToScrapeService;
+    public ScrapService(
+            MercadonaScrapeService mercadonaScrapeService,
+            BooksToScrapeService booksToScrapeService) {
 
+        this.mercadonaScrapeService = mercadonaScrapeService;
+        this.booksToScrapeService = booksToScrapeService;
+    }
 
     public List<Product> getAllBooks() throws IOException {
+
         List<Product> products = new ArrayList<>();
 
         System.out.println("Empezando a obtener los libros...");
 
         products.addAll(booksToScrapeService.getAllProducts());
 
-        System.out.println("Productos obtenidos.");
+        System.out.println("Libros obtenidos.");
 
+        saveProducstJson(products, "libros");
 
-        saveProducstJson(products);
-
-        System.out.println("Archivo creado");
-
+        System.out.println("Archivo de libros creado.");
 
         return products;
     }
 
-
-
-
     public List<Product> getAllProducts() throws IOException {
+
         List<Product> products = new ArrayList<>();
 
         System.out.println("Empezando a obtener los productos...");
 
-        products.addAll(mercadonaScrapeService.extractFromAllCategories());
+        products.addAll(
+                mercadonaScrapeService.extractFromAllCategories()
+        );
 
         System.out.println("Productos obtenidos.");
 
+        saveProducstJson(products, "productos");
 
-        saveProducstJson(products);
-
-        System.out.println("Archivo creado");
-
+        System.out.println("Archivo de productos creado.");
 
         return products;
     }
 
+    public void saveProducstJson(
+            List<Product> productos,
+            String fileName
+    ) throws IOException {
 
-    public void saveProducstJson(List<Product> productos) throws IOException {
+        System.out.println(
+                "Tamaño de lista: " + productos.size()
+        );
 
-        System.out.println("Tamaño de list saveProducstJson: " + productos.size());
         ObjectMapper mapper = new ObjectMapper();
+
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         Path directorio = Paths.get("datos");
+
         Files.createDirectories(directorio);
 
-        Path archivo = directorio.resolve("productos.json");
+        Path archivo = directorio.resolve(fileName + ".json");
 
         mapper.writeValue(archivo.toFile(), productos);
 
@@ -82,5 +90,4 @@ public class ScrapService {
                         archivo.toAbsolutePath()
         );
     }
-
 }
