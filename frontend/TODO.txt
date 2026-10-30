@@ -1,0 +1,3 @@
+Cambiar el nombre del componente productos por libros
+Hacer la pagina par los productos del mercadona
+Obtener de más supermercados

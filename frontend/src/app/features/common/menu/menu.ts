@@ -12,6 +12,6 @@ export class MenuComponent {
 
   options = [
     { label: 'Home', path: '/' },
-    { label: 'Libros', path: '/products' },
+    { label: 'Libros', path: '/books' },
   ];
 }

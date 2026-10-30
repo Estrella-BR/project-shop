@@ -311,14 +311,14 @@
   border-bottom: 2px solid #c8a97e;
 }
 
-.product-facts {
+.book-facts {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.75rem 1rem;
   margin: 0.5rem 0 1.5rem;
   padding: 0;
 }
-.product-facts dt {
+.book-facts dt {
   font-size: 0.8rem;
   font-weight: 700;
   color: #8b5a2b;
@@ -326,7 +326,7 @@
   letter-spacing: 1px;
   align-self: center;
 }
-.product-facts dd {
+.book-facts dd {
   margin: 0;
   font-family: 'Georgia', serif;
   font-size: 1.35rem;
@@ -424,6 +424,6 @@
     to   { transform: rotateX(0deg);   opacity: 1; }
   }
   .page-title { font-size: 1.35rem; }
-  .product-facts dd { font-size: 1.15rem; }
+  .book-facts dd { font-size: 1.15rem; }
   .close-btn { top: -12px; right: 8px; }
 }

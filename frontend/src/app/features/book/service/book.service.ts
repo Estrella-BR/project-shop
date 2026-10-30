@@ -5,12 +5,12 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class ProductService {
+export class BookService {
     private apiUrl = 'http://localhost:8080';
 
      constructor(private http: HttpClient) {}
 
-  getProducts(): Observable<string> {
+  getBooks(): Observable<string> {
     return this.http.get(
       `${this.apiUrl}/books`,
       { responseType: 'text' }

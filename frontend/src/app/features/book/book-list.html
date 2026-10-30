@@ -1,37 +1,37 @@
 <header class="library-header">
   <h1>Biblioteca</h1>
-  @if (allProducts().length > 0) {
+  @if (allBooks().length > 0) {
     <p class="library-subtitle">
-      Mostrando {{ rangeStart() }}–{{ rangeEnd() }} de {{ allProducts().length }} volúmenes
+      Mostrando {{ rangeStart() }}–{{ rangeEnd() }} de {{ allBooks().length }} volúmenes
     </p>
   }
 </header>
 
-@if (allProducts().length === 0) {
+@if (allBooks().length === 0) {
   <p class="empty">La estantería está vacía…</p>
 } @else {
   <div class="bookshelves">
     @for (shelf of shelves(); track $index) {
       <div class="shelf">
         <div class="shelf-books">
-          @for (product of shelf; track $index) {
+          @for (book of shelf; track $index) {
             <div
               class="book"
               role="button"
               tabindex="0"
-              [attr.aria-label]="'Abrir ' + product.name"
-              [style.background]="getBookColor(product)"
-              [style.height.px]="getBookHeight(product)"
-              [style.width.px]="getBookWidth(product)"
-              (click)="openBook(product)"
-              (keydown.enter)="openBook(product)"
-              (keydown.space)="openBook(product); $event.preventDefault()"
+              [attr.aria-label]="'Abrir ' + book.name"
+              [style.background]="getBookColor(book)"
+              [style.height.px]="getBookHeight(book)"
+              [style.width.px]="getBookWidth(book)"
+              (click)="openBook(book)"
+              (keydown.enter)="openBook(book)"
+              (keydown.space)="openBook(book); $event.preventDefault()"
             >
               <div class="book-thumb">
-                <img [src]="product.image" [alt]="product.name" loading="lazy" />
+                <img [src]="book.image" [alt]="book.name" loading="lazy" />
               </div>
 
-              <span class="book-spine-title">{{ product.name }}</span>
+              <span class="book-spine-title">{{ book.name }}</span>
             </div>
           }
         </div>
@@ -78,12 +78,12 @@
         <!-- Lomo central (pliegue) -->
         <div class="book-fold"></div>
 
-        <!-- Página derecha: ficha del producto -->
+        <!-- Página derecha: ficha del libro -->
         <div class="page page-right">
           <div class="page-content">
-            <h3 class="section-title">Ficha del producto</h3>
+            <h3 class="section-title">Ficha del libro</h3>
 
-            <dl class="product-facts">
+            <dl class="book-facts">
               <dt>Precio</dt>
               <dd>{{ book.price }}</dd>
               <dt>Cantidad</dt>
