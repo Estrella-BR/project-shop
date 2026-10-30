@@ -29,4 +29,16 @@ public class ScraperController {
             );
         }
     }
+
+    @GetMapping("/books")
+    public List<Product> getBooks() {
+        try {
+            return scraperService.getAllBooks();
+        } catch (IOException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_GATEWAY,
+                    "No se han podido obtener los productos de la tienda"
+            );
+        }
+    }
 }

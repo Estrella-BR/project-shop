@@ -12,7 +12,7 @@ export class ProductService {
 
   getProducts(): Observable<string> {
     return this.http.get(
-      `${this.apiUrl}/productos`,
+      `${this.apiUrl}/books`,
       { responseType: 'text' }
     );
   }
