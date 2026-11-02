@@ -1,5 +1,16 @@
-
-<header>
-asd
-
+<header class="library-header">
+  <h1>Tienda</h1>
 </header>
+
+@if (allProducts().length === 0) {
+  <p class="empty">La estantería está vacía…</p>
+} @else {
+  <div class="bookshelves">
+   <app-product-component
+      *ngFor="let product of products(); track $index"
+      [product]="product"
+    ></app-product-component>
+    
+    
+  </div>
+    }

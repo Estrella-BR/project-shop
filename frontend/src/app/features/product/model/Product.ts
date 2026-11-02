@@ -1,4 +1,4 @@
-export class Book {
+export class Product {
     name: string = "";
     price: string = "";
     quantity: string = "";
