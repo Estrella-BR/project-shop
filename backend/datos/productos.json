@@ -11873,6 +11873,12 @@
   "image" : "https://prod-mercadona.imgix.net/images/9203d33b32f8ef412a6ea499e18f5480.jpeg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
+  "name" : "Roscón de Reyes relleno de crema y preparado a base de nata bañado en cacao Hacendado congelado",
+  "price" : "9.50",
+  "cuantity" : "Caja",
+  "image" : "https://prod-mercadona.imgix.net/images/90c82bef448c52c7f678d54f3f9eda14.jpg?fit=crop&h=300&w=300",
+  "url" : ""
+}, {
   "name" : "Tarta red velvet Hacendado congelada",
   "price" : "10.00",
   "cuantity" : "",
@@ -16962,7 +16968,7 @@
   "url" : ""
 }, {
   "name" : "Plátano macho",
-  "price" : "0.84",
+  "price" : "0.81",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/c22baa2a17de06fbf8477ef25392b7ca.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17004,7 +17010,7 @@
   "url" : ""
 }, {
   "name" : "Manzana roja dulce",
-  "price" : "0.42",
+  "price" : "0.40",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/4287bde2a6bab7877b74f79e7d989d8c.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17022,7 +17028,7 @@
   "url" : ""
 }, {
   "name" : "Manzana Granny Smith",
-  "price" : "0.43",
+  "price" : "0.45",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/fea3470bee0679f0e081916ec48c0b36.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17034,7 +17040,7 @@
   "url" : ""
 }, {
   "name" : "Manzana roja acidulce",
-  "price" : "0.50",
+  "price" : "0.53",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/22301daf320667073b7662206e508c36.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17046,13 +17052,13 @@
   "url" : ""
 }, {
   "name" : "Medio melón piel de sapo",
-  "price" : "3.85",
+  "price" : "3.82",
   "cuantity" : "1/2 Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/2d034c1b80642d033f7b5aecd3fb8269.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Melón piel de sapo",
-  "price" : "6.60",
+  "price" : "6.40",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/bd4459355f58bc265a2c6720b688e3c3.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17082,7 +17088,7 @@
   "url" : ""
 }, {
   "name" : "Naranja de mesa",
-  "price" : "0.73",
+  "price" : "0.71",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/e9ff28c3b115649df7138f0f51dd1f9f.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17100,7 +17106,7 @@
   "url" : ""
 }, {
   "name" : "Pomelo",
-  "price" : "1.09",
+  "price" : "1.12",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/33aa4801e7e15cc82d0caa406b3fb363.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17136,7 +17142,7 @@
   "url" : ""
 }, {
   "name" : "Piña",
-  "price" : "4.20",
+  "price" : "4.04",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/9dd42248e51d82317d3e48eaa166d56e.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17148,7 +17154,7 @@
   "url" : ""
 }, {
   "name" : "Mango",
-  "price" : "1.71",
+  "price" : "1.65",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/05ba87e8e2d78124318a9dee667b3d07.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17184,7 +17190,7 @@
   "url" : ""
 }, {
   "name" : "Granada",
-  "price" : "1.47",
+  "price" : "1.41",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/e51fbd5638b241e5e21e7af11b8f03b7.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17532,7 +17538,7 @@
   "url" : ""
 }, {
   "name" : "Rama de Tomates",
-  "price" : "1.84",
+  "price" : "1.89",
   "cuantity" : "Granel",
   "image" : "https://prod-mercadona.imgix.net/images/b865049658bc89eaf2131c967ee4d57e.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17580,7 +17586,7 @@
   "url" : ""
 }, {
   "name" : "Calabacín verde",
-  "price" : "0.55",
+  "price" : "0.56",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/ebbfb6a904fe02ba5a88b02f2be911fd.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17592,7 +17598,7 @@
   "url" : ""
 }, {
   "name" : "Calabacín blanco",
-  "price" : "0.75",
+  "price" : "0.77",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/50a267029cedf70b9f9a52c389deb4bc.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17610,7 +17616,7 @@
   "url" : ""
 }, {
   "name" : "Coliflor",
-  "price" : "2.02",
+  "price" : "1.97",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/6d23e41208a9f845dbde60697cb4d5d2.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17634,7 +17640,7 @@
   "url" : ""
 }, {
   "name" : "Col lombarda",
-  "price" : "1.90",
+  "price" : "1.94",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/7798d5fc27ec9df3b3336c68302e5972.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17718,7 +17724,7 @@
   "url" : ""
 }, {
   "name" : "Brócoli",
-  "price" : "1.16",
+  "price" : "1.27",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/2ef72b37fe1021e9ff4ea8f46f9204f8.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -17730,7 +17736,7 @@
   "url" : ""
 }, {
   "name" : "Berenjena rayada",
-  "price" : "0.83",
+  "price" : "0.85",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/194ffef84cc24571ee1d98b9522a3a90.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21750,7 +21756,7 @@
   "url" : ""
 }, {
   "name" : "Salmón media pieza a rodajas",
-  "price" : "14.34",
+  "price" : "14.56",
   "cuantity" : "1/2 Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/3cb80836bc33e899bc88c403a7dbdf05.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21762,7 +21768,7 @@
   "url" : ""
 }, {
   "name" : "Salmón media pieza abierto en libro sin cabeza y sin espina",
-  "price" : "14.34",
+  "price" : "14.56",
   "cuantity" : "1/2 Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/9e3d2b0d70964b5e08e4430a34872631.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21774,7 +21780,7 @@
   "url" : ""
 }, {
   "name" : "Salmón media pieza sin aletas y sin escamas",
-  "price" : "14.34",
+  "price" : "14.56",
   "cuantity" : "1/2 Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/2a83560771de82f2644054222802f106.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21804,31 +21810,31 @@
   "url" : ""
 }, {
   "name" : "Dorada limpia con cabeza",
-  "price" : "5.23",
+  "price" : "5.13",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/436b010dcbc6108690d724afe2d95b97.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Dorada abierta a la espalda con espinas y con cabeza",
-  "price" : "5.23",
+  "price" : "5.13",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/b00be480049e6df6699dfcc258e77d84.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Dorada a filetes sin cabeza y sin espina",
-  "price" : "5.23",
+  "price" : "5.13",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/63343ce507fc67170a68187887e2a908.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Dorada abierta en libro sin cabeza y sin espina",
-  "price" : "5.23",
+  "price" : "5.13",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/2957b087240ec84fa053668b79413731.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Dorada sin limpiar",
-  "price" : "5.23",
+  "price" : "5.13",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/5a648f8a69f2dd2d87d7049b8e604499.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21840,31 +21846,31 @@
   "url" : ""
 }, {
   "name" : "Lubina limpia con cabeza",
-  "price" : "5.17",
+  "price" : "4.78",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/7b996b05f032204332216f5e6a72b129.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Lubina abierta a la espalda con espinas y con cabeza",
-  "price" : "5.17",
+  "price" : "4.78",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/45f37ee9fbccebfd1cde069320cc9b3b.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Lubina a filetes sin cabeza y sin espina",
-  "price" : "5.17",
+  "price" : "4.78",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/08fb245b6763997aa1ec02d8a537c03f.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Lubina abierta en libro sin cabeza y sin espina",
-  "price" : "5.17",
+  "price" : "4.78",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/a81a713fad959d63b5ab54f2d11cff23.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Lubina sin limpiar",
-  "price" : "5.17",
+  "price" : "4.78",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/079d2d1fac75b66dea891397f9744121.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21882,7 +21888,7 @@
   "url" : ""
 }, {
   "name" : "Bacalao a rodajas",
-  "price" : "30.04",
+  "price" : "37.68",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/7fe85bfd4b3c74ef53e335e439b06b4e.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21894,7 +21900,7 @@
   "url" : ""
 }, {
   "name" : "Bacalao abierto en libro sin cabeza y sin espina",
-  "price" : "30.04",
+  "price" : "37.68",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/144bdf77d235c7a4ca6d525717c6214e.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -21912,19 +21918,19 @@
   "url" : ""
 }, {
   "name" : "Corvina limpia con cabeza",
-  "price" : "14.26",
+  "price" : "13.11",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/914aa9f7dc7c62ac7ca4a4126e45b5b3.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Corvina abierta a la espalda con espinas y con cabeza",
-  "price" : "14.26",
+  "price" : "13.11",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/e9ae60ccbc54da434f15d6fc359697ce.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
   "name" : "Corvina a filetes",
-  "price" : "14.26",
+  "price" : "13.11",
   "cuantity" : "Pieza",
   "image" : "https://prod-mercadona.imgix.net/images/c24e26cdf25836aff4838e4dfafaf136.jpg?fit=crop&h=300&w=300",
   "url" : ""
@@ -25823,7 +25829,7 @@
   "image" : "https://prod-mercadona.imgix.net/images/ead686f6dd51a57d3e03cdde744912d0.jpg?fit=crop&h=300&w=300",
   "url" : ""
 }, {
-  "name" : "Kéfir natural sabor suave",
+  "name" : "Kéfir natural Hacendado sabor suave",
   "price" : "1.10",
   "cuantity" : "Bote",
   "image" : "https://prod-mercadona.imgix.net/images/996e614f475b8cd286f9a4c15643edea.jpg?fit=crop&h=300&w=300",

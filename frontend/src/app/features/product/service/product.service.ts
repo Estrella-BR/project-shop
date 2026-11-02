@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import { Product } from '../model/Product';
+import { PaginatedResponse } from '../../common/model/PaginatedResponse';
+
+type CatalogProductResponse = Omit<Product, 'quantity'> & { cuantity: string };
 
 @Injectable({
   providedIn: 'root'
@@ -9,12 +14,29 @@ import { environment } from '../../../../environments/environment';
 export class ProductService {
     private apiUrl = environment.apiUrl;
 
-     constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {}
 
-  getProducts(): Observable<string> {
-    return this.http.get(
-      `${this.apiUrl}/products`,
-      { responseType: 'text' }
+
+  getProducts(
+    page: number = 0,
+    size: number = 20
+  ): Observable<PaginatedResponse<Product>> {
+
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size);
+
+    return this.http.get<PaginatedResponse<CatalogProductResponse>>(
+      this.apiUrl + '/api/catalog',
+      { params }
+    ).pipe(
+      map(response => ({
+        ...response,
+        content: response.content.map(({ cuantity, ...product }) => ({
+          ...product,
+          quantity: cuantity
+        }))
+      }))
     );
   }
 }

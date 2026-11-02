@@ -43,4 +43,24 @@ public class Product {
     public String getUrl() {
         return url;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public void setCuantity(String cuantity) {
+        this.cuantity = cuantity;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

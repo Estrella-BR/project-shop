@@ -2,15 +2,30 @@
   <h1>Tienda</h1>
 </header>
 
-@if (allProducts().length === 0) {
+@if (products().length === 0) {
   <p class="empty">La estantería está vacía…</p>
 } @else {
   <div class="bookshelves">
-   <app-product-component
-      *ngFor="let product of products(); track $index"
-      [product]="product"
-    ></app-product-component>
-    
-    
-  </div>
+    @for (product of products(); track $index) {
+      <app-product-component [product]="product"></app-product-component>
     }
+  </div>
+}
+
+@if (totalElements > 0) {
+  <nav class="pagination" aria-label="Paginación de productos">
+    <button
+      type="button"
+      class="page-btn"
+      [disabled]="currentPage() <= 1"
+      (click)="prevPage()"
+    >Anterior</button>
+    <span>Página {{ currentPage() }} de {{ totalPages() }}</span>
+    <button
+      type="button"
+      class="page-btn"
+      [disabled]="currentPage() >= totalPages()"
+      (click)="nextPage()"
+    >Siguiente</button>
+  </nav>
+}

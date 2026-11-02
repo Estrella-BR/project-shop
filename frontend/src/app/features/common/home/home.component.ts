@@ -26,16 +26,9 @@ import { ApiService } from '../services/api';
 export class HomeComponent implements OnInit {
   private readonly apiService = inject(ApiService);
 
-  mensaje = '';
+  mensaje = '¡Bienvenido a la tienda!';
 
   ngOnInit(): void {
-    this.apiService.getHello().subscribe({
-      next: (respuesta) => {
-        this.mensaje = respuesta;
-      },
-      error: (error) => {
-        console.error(error);
-      },
-    });
+
   }
 }

@@ -11,10 +11,5 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  getHello(): Observable<string> {
-    return this.http.get(
-      `${this.apiUrl}/hello`,
-      { responseType: 'text' }
-    );
-  }
+
 }

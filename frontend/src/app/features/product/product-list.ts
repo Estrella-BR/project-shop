@@ -1,8 +1,9 @@
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from './service/product.service';
 import { Product } from './model/Product';
 import { ProductComponent } from './components/product-component';
+import { PaginatedResponse } from '../common/model/PaginatedResponse';
 @Component({
   selector: 'app-product-list',
   standalone: true,
@@ -15,48 +16,49 @@ import { ProductComponent } from './components/product-component';
 export class ProductListComponent implements OnInit {
 
     productService = inject(ProductService);
-    allProducts = signal<Product[]>([]);
     products = signal<Product[]>([]);
 
+  totalElements = 0;
     
-  // Paginación
   currentPage = signal(1);
   pageSize = signal(12);
-  totalPages = computed(() =>
-    Math.max(1, Math.ceil(this.allProducts().length / this.pageSize()))
-  );
-  rangeStart = computed(() =>
-    this.allProducts().length === 0 ? 0 : (this.currentPage() - 1) * this.pageSize() + 1
-  );
-  rangeEnd = computed(() =>
-    Math.min(this.currentPage() * this.pageSize(), this.allProducts().length)
-  );
-  pages = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
+  totalPages = signal(1);
 
-  
-    ngOnInit(): void {
-        this.productService.getProducts().subscribe({
-            next: (data) => {
-            this.allProducts.set(JSON.parse(data) as Product[]);
-            this.updatePage();
-            },
-            error: (error) => console.error('Error fetching products:', error),
-        });
-    }
 
-    
-  private updatePage(): void {
-    const start = (this.currentPage() - 1) * this.pageSize();
-    this.products.set(this.allProducts().slice(start, start + this.pageSize()));
+  ngOnInit(): void {
+    this.loadProducts();
   }
 
-    goToPage(page: number): void {
+  loadProducts(): void {
+
+    this.productService.getProducts(
+      this.currentPage(),
+      this.pageSize()
+    ).subscribe({
+
+      next: (response: PaginatedResponse<Product>) => {
+
+        this.products.set(response.content);
+        this.currentPage.set(response.page);
+        this.totalPages.set(response.totalPages);
+        this.totalElements = response.totalElements;
+
+      },
+
+      error: (error) => {
+        console.error('Error obteniendo productos:', error);
+      }
+
+    });
+  }
+
+
+  goToPage(page: number): void {
     if (page < 1 || page > this.totalPages() || page === this.currentPage()) return;
     this.currentPage.set(page);
-    this.updatePage();
+    this.loadProducts();
   }
+
   nextPage(): void { this.goToPage(this.currentPage() + 1); }
   prevPage(): void { this.goToPage(this.currentPage() - 1); }
-
-  
 }
