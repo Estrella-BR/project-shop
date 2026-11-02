@@ -7,7 +7,12 @@ export const routes: Routes = [
   },
   {
     path: 'books',
-    loadComponent: () => import('./features/book/book-list.component').then(m => m.BookListComponent),
+    loadComponent: () => import('./features/book/book-list').then(m => m.BookListComponent),
+  },
+  
+  {
+    path: 'products',
+    loadComponent: () => import('./features/product/product-list').then(m => m.ProductListComponent),
   },
   { path: '**', redirectTo: '' },
 ];
