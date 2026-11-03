@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnInit, QueryList, ViewChildren, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from './service/product.service';
 import { Product } from './model/Product';
@@ -18,18 +18,32 @@ export class ProductListComponent implements OnInit {
     productService = inject(ProductService);
     products = signal<Product[]>([]);
 
-  totalElements = 0;
+    totalElements = 0;
+      
+    currentPage = signal(1);
+    pageSize = signal(12);
+    totalPages = signal(1);
+
     
-  currentPage = signal(1);
-  pageSize = signal(12);
-  totalPages = signal(1);
+  // COMPUTED: Genera los estantes automáticamente cuando cambian los productos
+  shelves = computed(() => {
+    const prods = this.products();
+    const result: Product[][] = [];
+    for (let i = 0; i < prods.length; i += this.itemPerShelf) {
+      result.push(prods.slice(i, i + this.itemPerShelf));
+    }
+    return result;
+  });
+    itemPerShelf = 4;
 
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.getProducts();
+    
   }
 
-  loadProducts(): void {
+
+  getProducts(): void {
 
     this.productService.getProducts(
       this.currentPage(),
@@ -53,10 +67,14 @@ export class ProductListComponent implements OnInit {
   }
 
 
+  
+
+ 
+
   goToPage(page: number): void {
     if (page < 1 || page > this.totalPages() || page === this.currentPage()) return;
     this.currentPage.set(page);
-    this.loadProducts();
+    this.getProducts();
   }
 
   nextPage(): void { this.goToPage(this.currentPage() + 1); }
