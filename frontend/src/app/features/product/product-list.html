@@ -1,34 +1,14 @@
-<header class="library-header">
-  <h1>Tienda</h1>
-</header>
+ <header class="library-header">
+      <h1>Tienda</h1>
+    </header>
 
-@if (products().length === 0) {
-  <p class="empty">La estantería está vacía…</p>
-} @else {
-
-  <div class="supermarket">
-    <!-- Iteramos sobre los estantes calculados -->
-    @for (shelf of shelves(); track $index) {
-      
-      <div class="shelf">
-        
-        <!-- 1. Contenedor de los productos (Una sola vez por estante) -->
-        <div class="products">
-          @for (product of shelf; track product.name) {
-            <app-product-component [product]="product"></app-product-component>
-          }
-        </div>
-
-        <!-- 2. Barra gris del estante (Una sola vez por estante) -->
-        <div class="shelf-bar">
-          <!-- 3. Etiquetas de precio (Una por cada producto en este estante) -->
-          @for (tag of shelf; track $index) {
-            <div class="price-tag"></div>
-          }
-        </div>
-
+    @if (products().length === 0) {
+      <p class="empty">La estantería está vacía…</p>
+    } @else {
+      <div class="supermarket">
+        @for (shelf of shelves(); track $index) {
+          <!-- Delegamos todo el trabajo visual al componente estante -->
+          <app-shelf [products]="shelf"></app-shelf>
+        }
       </div>
-
     }
-  </div>
-}

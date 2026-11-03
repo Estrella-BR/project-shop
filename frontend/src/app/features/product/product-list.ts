@@ -4,10 +4,11 @@ import { ProductService } from './service/product.service';
 import { Product } from './model/Product';
 import { ProductComponent } from './components/product-component';
 import { PaginatedResponse } from '../common/model/PaginatedResponse';
+import { ShelfComponent } from './components/shelf-component/shelf-component';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, ProductComponent],
+  imports: [CommonModule, ProductComponent, ShelfComponent],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
   host: {

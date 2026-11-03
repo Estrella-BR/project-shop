@@ -1,0 +1,11 @@
+ <div class="shelf">
+      <!-- Los productos (imágenes) -->
+      <div class="products">
+        @for (product of products; track product.name) {
+          <app-product-component [product]="product"></app-product-component>
+        }
+      </div>
+      
+      <!-- La barra de etiquetas -->
+      <app-shelf-bar [products]="products"></app-shelf-bar>
+    </div>
