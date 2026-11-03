@@ -316,7 +316,8 @@ public class MercadonaScrapeService {
                         price,
                         quantity,
                         image,
-                        productUrl
+                        productUrl,
+                        "Mercadona"
                 );
 
                 products.add(product);

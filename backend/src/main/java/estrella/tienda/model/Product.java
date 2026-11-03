@@ -7,6 +7,7 @@ public class Product {
     private String cuantity;
     private String image;
     private String url;
+    private String seller;
 
     public Product() {
     }
@@ -16,12 +17,14 @@ public class Product {
             String price,
             String cuantity,
             String image,
-            String url) {
+            String url,
+            String seller) {
         this.name = name;
         this.price = price;
         this.cuantity = cuantity;
         this.image = image;
         this.url = url;
+        this.seller = seller;
     }
 
     public String getName() {
@@ -62,5 +65,13 @@ public class Product {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getSeller() {
+        return seller;
+    }
+
+    public void setSeller(String seller) {
+        this.seller = seller;
     }
 }

@@ -75,7 +75,8 @@ public class BooksToScrapeService {
                     price,
                     availability,
                     image,
-                    url
+                    url,
+                    "Books to Scrape"
             );
 
             products.add(product);
