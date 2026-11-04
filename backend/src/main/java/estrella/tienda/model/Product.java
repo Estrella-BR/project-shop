@@ -6,6 +6,7 @@ public class Product {
     private String price;
     private String cuantity;
     private String image;
+    private String cleanImage;
     private String url;
     private String seller;
 
@@ -23,6 +24,7 @@ public class Product {
         this.price = price;
         this.cuantity = cuantity;
         this.image = image;
+        this.cleanImage = null;
         this.url = url;
         this.seller = seller;
     }
@@ -73,5 +75,13 @@ public class Product {
 
     public void setSeller(String seller) {
         this.seller = seller;
+    }
+
+    public String getCleanImage() {
+        return cleanImage;
+    }
+
+    public void setCleanImage(String cleanImage) {
+        this.cleanImage = cleanImage;
     }
 }

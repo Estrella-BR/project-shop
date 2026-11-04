@@ -1,5 +1,9 @@
 <div class="product-card">
-    @if (product?.image) {
-        <img [src]="product?.image" [alt]="product?.name">
+    @if (product?.cleanImage) {
+        <img [src]="getImageUrl(product.cleanImage)"
+        [alt]="product.name">
     }
-</div>
+    @else {
+        <img [src]="product?.image"  [alt]="product?.name">
+    }
+</div> 

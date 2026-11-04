@@ -23,6 +23,10 @@ public class ProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private  ImageProcessingService imageProcessingService;
+
+
     private List<Product> products;
 
     private static final Path PRODUCTOS_PATH =
@@ -102,6 +106,12 @@ public class ProductService {
                 inicio,
                 fin
         );
+
+        for(Product product: contenido){
+            if(product.getCleanImage() == null){
+                product.setCleanImage(imageProcessingService.processImage(product.getImage()));
+            }
+        }
 
         return new PaginatedResponse<>(
                 contenido,

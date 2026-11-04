@@ -3,6 +3,7 @@ export class Product {
     price: string = "";
     quantity: string = "";
     image: string = "";
+    cleanImage: string = "";
     url: string = "";
     seller: string = "";
 }

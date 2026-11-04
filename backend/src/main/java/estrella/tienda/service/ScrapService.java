@@ -2,6 +2,7 @@
 package estrella.tienda.service;
 
 import estrella.tienda.model.Product;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,16 +18,15 @@ import java.util.List;
 @Service
 public class ScrapService {
 
-    private final MercadonaScrapeService mercadonaScrapeService;
-    private final BooksToScrapeService booksToScrapeService;
+    @Autowired
+    private MercadonaScrapeService mercadonaScrapeService;
 
-    public ScrapService(
-            MercadonaScrapeService mercadonaScrapeService,
-            BooksToScrapeService booksToScrapeService) {
+    @Autowired
+    private BooksToScrapeService booksToScrapeService;
 
-        this.mercadonaScrapeService = mercadonaScrapeService;
-        this.booksToScrapeService = booksToScrapeService;
-    }
+    @Autowired
+    private CarrefourScrapService carrefourScrapService;
+
 
     public List<Product> getAllBooks() throws IOException {
 
@@ -51,9 +51,10 @@ public class ScrapService {
 
         System.out.println("Empezando a obtener los productos...");
 
-        products.addAll(
-                mercadonaScrapeService.extractFromAllCategories()
-        );
+        //Call functions
+        products.addAll(mercadonaScrapeService.extractFromAllCategories());
+       // products.addAll(carrefourScrapService.obtenerTodosLosProductos());
+
 
         System.out.println("Productos obtenidos.");
 

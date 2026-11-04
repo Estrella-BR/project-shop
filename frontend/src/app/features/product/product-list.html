@@ -1,14 +1,13 @@
- <header class="library-header">
-      <h1>Tienda</h1>
-    </header>
+
 
     @if (products().length === 0) {
       <p class="empty">La estantería está vacía…</p>
     } @else {
+      <app-search-sign></app-search-sign>
       <div class="supermarket">
         @for (shelf of shelves(); track $index) {
           <!-- Delegamos todo el trabajo visual al componente estante -->
           <app-shelf [products]="shelf"></app-shelf>
         }
       </div>
-    }
+    } 

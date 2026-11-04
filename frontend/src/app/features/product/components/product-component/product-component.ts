@@ -16,5 +16,13 @@ export class ProductComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    getImageUrl(image: string): string {
+      if (image.startsWith('http')) {
+          return image;
+      }
+
+      return `http://localhost:8080${image}`;
+  }
+
 }
 

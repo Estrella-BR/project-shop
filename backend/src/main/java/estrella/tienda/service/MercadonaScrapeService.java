@@ -8,8 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -437,7 +440,7 @@ public class MercadonaScrapeService {
                             warehouse
                     );
 
-            // Evitar duplicados
+            // Evitar duplicados y procesar solamente productos nuevos
             for (Product product : categoryProducts) {
 
                 String identificador =
@@ -446,10 +449,13 @@ public class MercadonaScrapeService {
 
                 if (productosDuplicados.add(identificador)) {
 
+                    // Añadir producto
                     products.add(product);
                 }
             }
         }
+
+
 
         return products;
     }

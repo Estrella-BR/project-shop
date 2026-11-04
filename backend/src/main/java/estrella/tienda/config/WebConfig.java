@@ -1,4 +1,4 @@
-package estrella.tienda.common;
+package estrella.tienda.config;
 
 
 import org.springframework.context.annotation.Configuration;

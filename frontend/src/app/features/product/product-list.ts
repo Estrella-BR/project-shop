@@ -2,13 +2,15 @@ import { Component, ElementRef, OnInit, QueryList, ViewChildren, computed, injec
 import { CommonModule } from '@angular/common';
 import { ProductService } from './service/product.service';
 import { Product } from './model/Product';
-import { ProductComponent } from './components/product-component';
 import { PaginatedResponse } from '../common/model/PaginatedResponse';
 import { ShelfComponent } from './components/shelf-component/shelf-component';
+import { SearchSignComponent } from './components/search-sing-component/search-sing-component';
+import { ShelfTopComponent } from './components/search-sing-component/shelf-top-component';
+import { ShelfBarComponent } from './components/shelf-bar-component/shelf-bar-component';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, ProductComponent, ShelfComponent],
+  imports: [CommonModule, SearchSignComponent, ShelfComponent],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
   host: {
