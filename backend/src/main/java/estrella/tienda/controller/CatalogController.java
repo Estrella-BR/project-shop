@@ -4,6 +4,7 @@ import estrella.tienda.common.PaginatedResponse;
 import estrella.tienda.model.Product;
 import estrella.tienda.service.ProductService;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -21,15 +22,45 @@ public class CatalogController {
         this.productCatalogService = productCatalogService;
     }
 
-    @GetMapping
-    public PaginatedResponse<Product> obtenerProductos(
+    @RequestMapping(path = "", method = RequestMethod.GET)
+    public PaginatedResponse<Product> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) throws IOException {
 
-        return productCatalogService.obtenerProductos(
+        return productCatalogService.getAll(
                 page,
                 size
         );
     }
+
+
+
+    @GetMapping("/productos/filtrar")
+    public ResponseEntity<PaginatedResponse<Product>> getProductsFiltered(
+
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Double precioMin,
+            @RequestParam(required = false) Double precioMax,
+            @RequestParam(required = false) String cantidad,
+            @RequestParam(required = false) String vendedor
+
+    ) throws IOException {
+
+        return ResponseEntity.ok(
+                productCatalogService.getProductsFiltered(
+                        page,
+                        size,
+                        nombre,
+                        precioMin,
+                        precioMax,
+                        cantidad,
+                        vendedor
+                )
+        );
+    }
+
 }
