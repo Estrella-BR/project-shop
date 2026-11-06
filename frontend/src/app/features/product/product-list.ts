@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, QueryList, ViewChildren, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from './service/product.service';
 import { Product } from './model/Product';
@@ -6,29 +6,29 @@ import { PaginatedResponse } from '../common/model/PaginatedResponse';
 import { ShelfComponent } from './components/shelf-component/shelf-component';
 import { SearchSignComponent } from './components/search-sing-component/search-sing-component';
 import { ShelfTopComponent } from './components/search-sing-component/shelf-top-component';
-import { ShelfBarComponent } from './components/shelf-bar-component/shelf-bar-component';
+
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, SearchSignComponent, ShelfComponent],
+  imports: [CommonModule, SearchSignComponent, ShelfComponent, ShelfTopComponent],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
-  host: {
-  },
 })
 export class ProductListComponent implements OnInit {
 
-    productService = inject(ProductService);
-    products = signal<Product[]>([]);
+  productService = inject(ProductService);
+  
+  products = signal<Product[]>([]);
+  // NUEVO: Signal para el estado de carga
+  isLoading = signal<boolean>(false); 
+  
+  page = signal(1);
+  size = signal(12);
+  totalPages = signal(1);
+  totalElements = signal(0);
+  
+  itemPerShelf = 4;
 
-    totalElements = 0;
-      
-    currentPage = signal(1);
-    pageSize = signal(12);
-    totalPages = signal(1);
-
-    
-  // COMPUTED: Genera los estantes automáticamente cuando cambian los productos
   shelves = computed(() => {
     const prods = this.products();
     const result: Product[][] = [];
@@ -37,49 +37,57 @@ export class ProductListComponent implements OnInit {
     }
     return result;
   });
-    itemPerShelf = 4;
-
 
   ngOnInit(): void {
     this.getProducts();
-    
   }
 
-
   getProducts(): void {
+    // 1. Activamos el loading antes de la petición
+    this.isLoading.set(true);
 
-    this.productService.getProducts(
-      this.currentPage(),
-      this.pageSize()
-    ).subscribe({
-
+    this.productService.getProducts(this.page(), this.size()).subscribe({
       next: (response: PaginatedResponse<Product>) => {
-
         this.products.set(response.content);
-        this.currentPage.set(response.page);
+        this.page.set(response.page);
         this.totalPages.set(response.totalPages);
-        this.totalElements = response.totalElements;
+        this.totalElements.set(response.totalElements);
 
+        // 2. Desactivamos el loading al recibir la respuesta
+        this.isLoading.set(false);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       },
-
       error: (error) => {
         console.error('Error obteniendo productos:', error);
+        // 3. Desactivamos el loading también si hay un error
+        this.isLoading.set(false); 
       }
-
     });
   }
 
-
-  
-
- 
-
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages() || page === this.currentPage()) return;
-    this.currentPage.set(page);
-    this.getProducts();
+  onSearch(term: string): void {
+    console.log('Buscando:', term);
   }
 
-  nextPage(): void { this.goToPage(this.currentPage() + 1); }
-  prevPage(): void { this.goToPage(this.currentPage() - 1); }
+  nextPage(): void {
+    if (this.page() < this.totalPages()) {
+      this.page.update(p => p + 1);
+      this.getProducts();
+    }
+  }
+
+  prevPage(): void {
+    if (this.page() > 1) {
+      this.page.update(p => p - 1);
+      this.getProducts();
+    }
+  }
+
+  goToPage(newPage: number): void {
+    if (newPage >= 1 && newPage <= this.totalPages() && newPage !== this.page()) {
+      this.page.set(newPage);
+      this.getProducts();
+    }
+  }
 }

@@ -39,4 +39,35 @@ export class ProductService {
       }))
     );
   }
+
+  getProductWithFilters(
+    page: number = 0,
+    size: number = 20,
+    name?: string,
+    category?: string,
+    minPrice?: number,
+    maxPrice?: number
+  ): Observable<PaginatedResponse<Product>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('name', name || '')
+      .set('category', category || '')
+      .set('minPrice', minPrice?.toString() || '')
+      .set('maxPrice', maxPrice?.toString() || '');
+
+    return this.http.get<PaginatedResponse<CatalogProductResponse>>(
+      this.apiUrl + '/api/catalog',
+      { params }  
+    ).pipe(
+      map(response => ({
+        ...response,
+        content: response.content.map(({ cuantity, ...product }) => ({
+          ...product,
+          quantity: cuantity
+        }))
+      }))
+    );
+  }
+
 }

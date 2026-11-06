@@ -1,3 +1,8 @@
-Cambiar el nombre del componente productos por libros
-Hacer la pagina par los productos del mercadona
-Obtener de más supermercados
+
+Conectar con filtros de back y ver si va bien
+
+Hacer el spinner más bonito
+
+cambiar el searchbar para todos los filtros
+
+Obtener de más supermercados (Carrefour)

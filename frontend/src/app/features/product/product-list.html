@@ -1,13 +1,40 @@
+<!-- Cartel de búsqueda -->
+<app-search-sign (searchChange)="onSearch($event)"></app-search-sign>
 
+<!-- 1. ESTADO DE CARGA -->
+@if (isLoading()) {
+  <div class="loading-container">
+    <div class="cartoon-spinner"></div>
+    <p class="loading-text">Cargando productos...</p>
+  </div>
+} 
+<!-- 2. ESTADO VACÍO -->
+@else if (products().length === 0) {
+  <p class="empty">No se encontraron productos…</p>
+} 
+<!-- 3. ESTADO CON DATOS -->
+@else {
+  
+  <div class="supermarket">
+    <app-shelf-top></app-shelf-top>
 
-    @if (products().length === 0) {
-      <p class="empty">La estantería está vacía…</p>
-    } @else {
-      <app-search-sign></app-search-sign>
-      <div class="supermarket">
-        @for (shelf of shelves(); track $index) {
-          <!-- Delegamos todo el trabajo visual al componente estante -->
-          <app-shelf [products]="shelf"></app-shelf>
-        }
-      </div>
-    } 
+    @for (shelf of shelves(); track $index) {
+      <app-shelf [products]="shelf"></app-shelf>
+    }
+  </div>
+
+  <div class="pagination-container">
+    <button class="cartoon-btn" [disabled]="page() <= 1" (click)="prevPage()">
+      ◀ Anterior
+    </button>
+    <div class="page-indicator">
+      <span class="page-text">Página</span>
+      <span class="page-number">{{ page() }}</span>
+      <span class="page-text">de {{ totalPages() }}</span>
+    </div>
+    <button class="cartoon-btn" [disabled]="page() >= totalPages()" (click)="nextPage()">
+      Siguiente ▶
+    </button>
+  </div>
+
+}
