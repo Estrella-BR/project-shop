@@ -1,9 +1,8 @@
-
 import { Component, output, signal } from '@angular/core';
 
 export interface SearchFilters {
-  minPrice: string ;
-  maxPrice: string ;
+  minPrice: string;
+  maxPrice: string;
   supermarket: string;
   sortBy: string;
 }
@@ -63,50 +62,47 @@ export interface SearchFilters {
 
           @if (filtersOpen()) {
             <div class="post-it-content">
+              <div class="filter-field">
+                <label>Precio mínimo (€)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  (input)="updateFilter('minPrice', $event)"
+                >
+              </div>
 
-              <h3>Filtrar productos</h3>
+              <div class="filter-field">
+                <label>Precio máximo (€)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Sin límite"
+                  (input)="updateFilter('maxPrice', $event)"
+                >
+              </div>
 
-              <label>Precio mínimo (€)</label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
-                (input)="updateFilter('minPrice', $event)"
-              >
+              <div class="filter-field">
+                <label>Supermercado</label>
+                <select
+                  (change)="updateFilter('supermarket', $event)"
+                >
+                  <option value="">Todos</option>
+                  <option value="Mercadona">Mercadona</option>
+                  <option value="Carrefour">Carrefour</option>
+                </select>
+              </div>
 
-              <label>Precio máximo (€)</label>
-              <input
-                type="number"
-                min="0"
-                placeholder="Sin límite"
-                (input)="updateFilter('maxPrice', $event)"
-              >
-
-              <label>Supermercado</label>
-              <select
-                (change)="updateFilter('supermarket', $event)"
-              >
-                <option value="">Todos</option>
-                <option value="Mercadona">Mercadona</option>
-                <option value="Carrefour">Carrefour</option>
-              </select>
-
-              <label>Ordenar por</label>
-              <select
-                (change)="updateFilter('sortBy', $event)"
-              >
-                <option value="">Sin orden</option>
-                <option value="asc">Precio: menor a mayor</option>
-                <option value="desc">Precio: mayor a menor</option>
-              </select>
-
-              <button
-                class="clear-button"
-                (click)="clearFilters()"
-              >
-                Limpiar filtros
-              </button>
-
+              <div class="filter-field">
+                <label>Ordenar por</label>
+                <select
+                  (change)="updateFilter('sortBy', $event)"
+                >
+                  <option value="">Sin orden</option>
+                  <option value="asc">Precio: menor a mayor</option>
+                  <option value="desc">Precio: mayor a menor</option>
+                </select>
+              </div>
             </div>
           }
 
@@ -238,7 +234,8 @@ export interface SearchFilters {
     .post-it {
       position: absolute;
       top: -12px;
-      right: -22px;
+      /* Anchored on the LEFT so growing width pushes it to the RIGHT */
+      left: calc(100% - 103px); /* right edge overhangs the sign by 22px */
       width: 125px;
       background: #fff19a;
       color: #4b4328;
@@ -271,8 +268,9 @@ export interface SearchFilters {
       transform: rotate(2deg) translateY(-3px);
     }
 
+    /* Expands horizontally to the right, two filters per column */
     .post-it.expanded {
-      width: 230px;
+      width: 430px;
       transform: rotate(0deg);
     }
 
@@ -295,19 +293,28 @@ export interface SearchFilters {
       font-size: 1.3rem;
     }
 
+    /* Two filters per row */
     .post-it-content {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
       padding: 5px 14px 18px;
       font-family: Arial, sans-serif;
       animation: appear 0.25s ease;
     }
 
     .post-it-content h3 {
-      margin: 0 0 5px;
+      grid-column: 1 / -1;
+      margin: 0 0 2px;
       font-family: 'Comic Sans MS', cursive;
       font-size: 1rem;
+    }
+
+    .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
     }
 
     .post-it-content label {
@@ -334,7 +341,8 @@ export interface SearchFilters {
     }
 
     .clear-button {
-      margin-top: 8px;
+      grid-column: 1 / -1;
+      margin-top: 6px;
       padding: 8px;
       background: #e7d36a;
       border: 1px solid #bca942;
@@ -359,17 +367,39 @@ export interface SearchFilters {
       }
     }
 
+    /*
+      Fallback: if the viewport isn't wide enough to open to the right
+      without clipping, anchor to the right edge again (opens left).
+    */
+    @media (max-width: 1170px) {
+      .post-it {
+        left: auto;
+        right: -22px;
+      }
+
+      .post-it.expanded {
+        width: min(400px, calc(100vw - 40px));
+      }
+    }
+
     @media (max-width: 600px) {
       .metal-sign {
         width: calc(100% - 40px);
       }
 
       .post-it {
+        left: auto;
         right: -10px;
       }
 
       .post-it.expanded {
+        width: min(340px, calc(100vw - 50px));
         right: -5px;
+      }
+
+      /* Single column so the selects don't get squeezed */
+      .post-it-content {
+        grid-template-columns: 1fr;
       }
     }
   `]
@@ -390,6 +420,7 @@ export class SearchSignComponent {
 
   toggleFilters() {
     this.filtersOpen.update(value => !value);
+    this.clearFilters();
   }
 
   onInput(event: Event) {
@@ -403,8 +434,7 @@ export class SearchSignComponent {
   ) {
     const input = event.target as HTMLInputElement | HTMLSelectElement;
 
-      this.filters[filter] = input.value as string;
-    
+    this.filters[filter] = input.value as string;
 
     this.filtersChange.emit({ ...this.filters });
   }
