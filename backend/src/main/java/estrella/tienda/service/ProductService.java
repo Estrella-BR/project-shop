@@ -98,11 +98,11 @@ public class ProductService {
     public PaginatedResponse<Product> getProductsFiltered(
             int page,
             int size,
-            String nombre,
-            Double precioMin,
-            Double precioMax,
-            String cantidad,
-            String vendedor
+            String name,
+            Double minPrice,
+            Double maxPrice,
+            String quantity,
+            String seller
     ) throws IOException {
 
         if (page < 0) {
@@ -122,30 +122,30 @@ public class ProductService {
         List<Product> productosFiltrados = products.stream()
 
                 // Filtrar por nombre
-                .filter(product -> nombre == null || nombre.isBlank()
+                .filter(product -> name == null || name.isBlank()
                         || (product.getName() != null &&
                         product.getName().toLowerCase()
-                                .contains(nombre.trim().toLowerCase())))
+                                .contains(name.trim().toLowerCase())))
 
                 // Filtrar por precio mínimo
-                .filter(product -> precioMin == null ||
-                        obtenerPrecio(product.getPrice()) >= precioMin)
+                .filter(product -> minPrice == null ||
+                        obtenerPrecio(product.getPrice()) >= minPrice)
 
                 // Filtrar por precio máximo
-                .filter(product -> precioMax == null ||
-                        obtenerPrecio(product.getPrice()) <= precioMax)
+                .filter(product -> maxPrice == null ||
+                        obtenerPrecio(product.getPrice()) <= maxPrice)
 
                 // Filtrar por cantidad
-                .filter(product -> cantidad == null || cantidad.isBlank()
+                .filter(product -> quantity == null || quantity.isBlank()
                         || (product.getCuantity() != null &&
                         product.getCuantity().toLowerCase()
-                                .contains(cantidad.trim().toLowerCase())))
+                                .contains(quantity.trim().toLowerCase())))
 
                 // Filtrar por vendedor
-                .filter(product -> vendedor == null || vendedor.isBlank()
+                .filter(product -> seller == null || seller.isBlank()
                         || (product.getSeller() != null &&
                         product.getSeller().toLowerCase()
-                                .contains(vendedor.trim().toLowerCase())))
+                                .contains(seller.trim().toLowerCase())))
 
                 .toList();
 

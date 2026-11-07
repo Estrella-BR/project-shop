@@ -124,8 +124,6 @@ public class ImageProcessingService {
                 throw new IOException("Error de Python: " + output);
             }
 
-            System.out.println("Imagen procesada: " + id);
-
             // 4. Devolver la ruta pública
             return "/images/" + id + ".png";
 

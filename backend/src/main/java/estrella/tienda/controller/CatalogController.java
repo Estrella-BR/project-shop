@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/catalog")
+@RequestMapping("/catalog")
 @CrossOrigin(origins = "*")
 public class CatalogController {
 
@@ -36,17 +36,17 @@ public class CatalogController {
 
 
 
-    @GetMapping("/productos/filtrar")
+    @GetMapping("/search")
     public ResponseEntity<PaginatedResponse<Product>> getProductsFiltered(
 
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
 
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) Double precioMin,
-            @RequestParam(required = false) Double precioMax,
-            @RequestParam(required = false) String cantidad,
-            @RequestParam(required = false) String vendedor
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String quantity,
+            @RequestParam(required = false) String seller
 
     ) throws IOException {
 
@@ -54,11 +54,11 @@ public class CatalogController {
                 productCatalogService.getProductsFiltered(
                         page,
                         size,
-                        nombre,
-                        precioMin,
-                        precioMax,
-                        cantidad,
-                        vendedor
+                        name,
+                        minPrice,
+                        maxPrice,
+                        quantity,
+                        seller
                 )
         );
     }

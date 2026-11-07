@@ -27,7 +27,7 @@ export class ProductService {
       .set('size', size);
 
     return this.http.get<PaginatedResponse<CatalogProductResponse>>(
-      this.apiUrl + '/api/catalog',
+      this.apiUrl + '/catalog',
       { params }
     ).pipe(
       map(response => ({
@@ -57,7 +57,7 @@ export class ProductService {
       .set('maxPrice', maxPrice?.toString() || '');
 
     return this.http.get<PaginatedResponse<CatalogProductResponse>>(
-      this.apiUrl + '/api/catalog',
+      this.apiUrl + '/catalog/search',
       { params }  
     ).pipe(
       map(response => ({
