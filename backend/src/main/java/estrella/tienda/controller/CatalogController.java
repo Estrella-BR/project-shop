@@ -46,7 +46,8 @@ public class CatalogController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String quantity,
-            @RequestParam(required = false) String seller
+            @RequestParam(required = false) String seller,
+            @RequestParam(required = false) String sortByPrice
 
     ) throws IOException {
 
@@ -58,7 +59,8 @@ public class CatalogController {
                         minPrice,
                         maxPrice,
                         quantity,
-                        seller
+                        seller,
+                        sortByPrice
                 )
         );
     }

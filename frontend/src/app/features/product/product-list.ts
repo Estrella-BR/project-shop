@@ -29,6 +29,13 @@ export class ProductListComponent implements OnInit {
   
   itemPerShelf = signal(4);
 
+  nameFilter = signal<string>('');
+  categoryFilter = signal<string>('');
+  minPriceFilter = signal<string>('');
+  maxPriceFilter = signal<string>('')
+  supermarketFilter = signal<string>('');
+  sortByFilter = signal<string>('');
+
   shelves = computed(() => {
     const prods = this.products();
     const result: Product[][] = [];
@@ -39,11 +46,23 @@ export class ProductListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.getFilteredProducts('');
+    this.getFilteredProducts();
   }
 
   onSearch(search: string): void {
-      this.getFilteredProducts(search);
+    this.nameFilter.set(search);
+    this.page.set(1); 
+    this.getFilteredProducts();
+  }
+
+  onFilterChange(filters: {category?: string, minPrice?: string; maxPrice?: string; supermarket?: string, sortBy?: string}): void {
+    this.page.set(1);
+    this.categoryFilter.set(filters.category || '');
+    this.minPriceFilter.set(filters.minPrice || '');
+    this.maxPriceFilter.set(filters.maxPrice || '');
+    this.supermarketFilter.set(filters.supermarket || '');
+    this.sortByFilter.set(filters.sortBy || '');
+    this.getFilteredProducts();
   }
 
   loadResponse(response: PaginatedResponse<Product>): void {
@@ -54,55 +73,36 @@ export class ProductListComponent implements OnInit {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-
-  getAllProducts(): void {
-    this.isLoading.set(true);
-
-    this.productService.getProducts(this.page(), this.size()).subscribe({
-      next: (response: PaginatedResponse<Product>) => {
-        this.loadResponse(response);
-      },
-      error: (error) => {
-        console.error('Error obteniendo productos:', error);
-      }
-    });
-    
-    this.isLoading.set(false); 
-  }
-
-  getFilteredProducts(search: string): void {
+  
+  getFilteredProducts( ): void {
     
     this.isLoading.set(true);
 
-    this.productService.getProductWithFilters(this.page(), this.size(), search).subscribe({
+    this.productService.getProductWithFilters(this.page(), this.size(), this.nameFilter(), this.categoryFilter(), this.minPriceFilter(), this.maxPriceFilter(), this.supermarketFilter(), this.sortByFilter()).subscribe({
       next: (response: PaginatedResponse<Product>) => {
         this.loadResponse(response)
+        this.isLoading.set(false); 
       },
       error: (error) => {
         console.error('Error obteniendo productos:', error);
+        
+        this.isLoading.set(false); 
       }
     });
-    this.isLoading.set(false); 
   }
 
   nextPage(): void {
     if (this.page() < this.totalPages()) {
       this.page.update(p => p + 1);
-      this.getAllProducts();
+      this.getFilteredProducts();
     }
   }
 
   prevPage(): void {
     if (this.page() > 1) {
       this.page.update(p => p - 1);
-      this.getAllProducts();
+      this.getFilteredProducts();
     }
   }
 
-  goToPage(newPage: number): void {
-    if (newPage >= 1 && newPage <= this.totalPages() && newPage !== this.page()) {
-      this.page.set(newPage);
-      this.getAllProducts();
-    }
-  }
 }

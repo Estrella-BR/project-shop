@@ -45,16 +45,20 @@ export class ProductService {
     size: number = 20,
     name?: string,
     category?: string,
-    minPrice?: number,
-    maxPrice?: number
+    minPrice?: string,
+    maxPrice?: string,
+    supermarket?: string,
+    sortBy?: string 
   ): Observable<PaginatedResponse<Product>> {
     const params = new HttpParams()
       .set('page', page)
       .set('size', size)
       .set('name', name || '')
       .set('category', category || '')
-      .set('minPrice', minPrice?.toString() || '')
-      .set('maxPrice', maxPrice?.toString() || '');
+      .set('minPrice', minPrice || '')
+      .set('maxPrice', maxPrice || '')
+      .set('supermarket', supermarket || '')
+      .set('sortByPrice', sortBy || '');
 
     return this.http.get<PaginatedResponse<CatalogProductResponse>>(
       this.apiUrl + '/catalog/search',

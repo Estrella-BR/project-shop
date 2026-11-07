@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Comparator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -94,7 +94,6 @@ public class ProductService {
         return respuesta;
     }
 
-
     public PaginatedResponse<Product> getProductsFiltered(
             int page,
             int size,
@@ -102,7 +101,8 @@ public class ProductService {
             Double minPrice,
             Double maxPrice,
             String quantity,
-            String seller
+            String seller,
+            String sortByPrice
     ) throws IOException {
 
         if (page < 0) {
@@ -119,6 +119,7 @@ public class ProductService {
 
         cargarProductos();
 
+        // Aplicar filtros
         List<Product> productosFiltrados = products.stream()
 
                 // Filtrar por nombre
@@ -147,13 +148,40 @@ public class ProductService {
                         product.getSeller().toLowerCase()
                                 .contains(seller.trim().toLowerCase())))
 
-                .toList();
+                .collect(java.util.stream.Collectors.toCollection(
+                        java.util.ArrayList::new
+                ));
 
-        // Paginar resultados
+        // Ordenar por precio
+        if ("asc".equalsIgnoreCase(sortByPrice)) {
+
+            productosFiltrados.sort(
+                    Comparator.comparingDouble(
+                            product -> obtenerPrecio(product.getPrice())
+                    )
+            );
+
+        } else if ("desc".equalsIgnoreCase(sortByPrice)) {
+
+            productosFiltrados.sort(
+                    Comparator.comparingDouble(
+                            (Product product) ->
+                                    obtenerPrecio(product.getPrice())
+                    ).reversed()
+            );
+
+        } else if (sortByPrice != null && !sortByPrice.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Orden no válido. Utiliza 'asc' o 'desc'."
+            );
+        }
+
+        // Paginar resultados después de ordenar
         PaginatedResponse<Product> respuesta =
                 PaginatedResponse.of(productosFiltrados, page, size);
 
-        // Procesar imágenes
+        // Procesar imágenes de la página actual
         for (Product product : respuesta.content()) {
             if (product.getCleanImage() == null) {
                 product.setCleanImage(

@@ -1,18 +1,24 @@
-<!-- Cartel de búsqueda -->
-<app-search-sign (searchChange)="onSearch($event)"></app-search-sign>
-
-<!-- 1. ESTADO DE CARGA -->
+<app-search-sign
+  (searchChange)="onSearch($event)"
+  (filtersChange)="onFilterChange($event)"
+/>
 @if (isLoading()) {
-  <div class="loading-container">
-    <div class="cartoon-spinner"></div>
-    <p class="loading-text">Cargando productos...</p>
+  
+  <div class="supermarket">
+    <div class="loading-container">
+      <div class="cartoon-spinner"></div>
+      <p class="loading-text">Cargando productos...</p>
+    </div>
+    
   </div>
 } 
-<!-- 2. ESTADO VACÍO -->
 @else if (products().length === 0) {
-  <p class="empty">No se encontraron productos…</p>
+  
+  <div class="supermarket">
+    <p class="empty">No se encontraron productos…</p>
+
+  </div>
 } 
-<!-- 3. ESTADO CON DATOS -->
 @else {
   
   <div class="supermarket">

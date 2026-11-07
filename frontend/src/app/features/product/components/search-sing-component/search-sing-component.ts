@@ -1,42 +1,122 @@
-import { Component, output } from '@angular/core';
+
+import { Component, output, signal } from '@angular/core';
+
+export interface SearchFilters {
+  minPrice: string ;
+  maxPrice: string ;
+  supermarket: string;
+  sortBy: string;
+}
 
 @Component({
   selector: 'app-search-sign',
   standalone: true,
   template: `
     <div class="sign-container">
-      <!-- Soportes de techo simulados -->
+
       <div class="ceiling-bracket left"></div>
       <div class="ceiling-bracket right"></div>
 
       <div class="metal-sign">
-        <!-- Tornillos de las esquinas -->
+
         <div class="rivet top-left"></div>
         <div class="rivet top-right"></div>
         <div class="rivet bottom-left"></div>
         <div class="rivet bottom-right"></div>
 
-        <!-- Encabezado estilo pasillo de supermercado -->
         <div class="sign-header">
           <h2>SECCIÓN: BÚSQUEDA</h2>
         </div>
 
         <div class="sign-body">
+
           <div class="search-input-wrapper">
             <span class="search-icon">🔍</span>
-            <input 
-              type="text" 
-              placeholder="Escribe el nombre del producto..." 
+
+            <input
+              type="text"
+              placeholder="Escribe el nombre del producto..."
               (input)="onInput($event)"
               class="metal-input"
             >
           </div>
+
         </div>
+
+        <!-- POST-IT -->
+        <div
+          class="post-it"
+          [class.expanded]="filtersOpen()"
+        >
+
+          <button
+            class="post-it-header"
+            (click)="toggleFilters()"
+            [attr.aria-expanded]="filtersOpen()"
+          >
+            <span>📌 Más filtros</span>
+
+            <span class="arrow">
+              {{ filtersOpen() ? '−' : '+' }}
+            </span>
+          </button>
+
+          @if (filtersOpen()) {
+            <div class="post-it-content">
+
+              <h3>Filtrar productos</h3>
+
+              <label>Precio mínimo (€)</label>
+              <input
+                type="number"
+                min="0"
+                placeholder="0"
+                (input)="updateFilter('minPrice', $event)"
+              >
+
+              <label>Precio máximo (€)</label>
+              <input
+                type="number"
+                min="0"
+                placeholder="Sin límite"
+                (input)="updateFilter('maxPrice', $event)"
+              >
+
+              <label>Supermercado</label>
+              <select
+                (change)="updateFilter('supermarket', $event)"
+              >
+                <option value="">Todos</option>
+                <option value="Mercadona">Mercadona</option>
+                <option value="Carrefour">Carrefour</option>
+              </select>
+
+              <label>Ordenar por</label>
+              <select
+                (change)="updateFilter('sortBy', $event)"
+              >
+                <option value="">Sin orden</option>
+                <option value="asc">Precio: menor a mayor</option>
+                <option value="desc">Precio: mayor a menor</option>
+              </select>
+
+              <button
+                class="clear-button"
+                (click)="clearFilters()"
+              >
+                Limpiar filtros
+              </button>
+
+            </div>
+          }
+
+        </div>
+
       </div>
     </div>
   `,
+
   styles: [`
-    /* --- CONTENEDOR PRINCIPAL --- */
     .sign-container {
       display: flex;
       justify-content: center;
@@ -46,7 +126,6 @@ import { Component, output } from '@angular/core';
       position: relative;
     }
 
-    /* --- SOPORTES DE TECHO (Simulan cómo se cuelga) --- */
     .ceiling-bracket {
       position: absolute;
       top: -10px;
@@ -57,26 +136,25 @@ import { Component, output } from '@angular/core';
       border-radius: 2px;
       z-index: 1;
     }
+
     .ceiling-bracket.left { left: 35%; }
     .ceiling-bracket.right { right: 35%; }
 
-    /* --- PLACA DE METAL PRINCIPAL --- */
     .metal-sign {
       background: linear-gradient(135deg, #e0e0e0 0%, #f8f8f8 40%, #b0b0b0 100%);
       border: 3px solid #666;
       border-radius: 8px;
-      box-shadow: 
-        0 10px 25px rgba(0,0,0,0.6), 
-        inset 0 2px 3px rgba(255,255,255,0.8), 
+      box-shadow:
+        0 10px 25px rgba(0,0,0,0.6),
+        inset 0 2px 3px rgba(255,255,255,0.8),
         inset 0 -2px 5px rgba(0,0,0,0.3);
       position: relative;
       width: 500px;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
     }
 
-    /* --- TORNILLOS / REMACHES --- */
     .rivet {
       position: absolute;
       width: 12px;
@@ -86,18 +164,19 @@ import { Component, output } from '@angular/core';
       box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
       z-index: 10;
     }
+
     .top-left { top: 8px; left: 8px; }
     .top-right { top: 8px; right: 8px; }
     .bottom-left { bottom: 8px; left: 8px; }
     .bottom-right { bottom: 8px; right: 8px; }
 
-    /* --- ENCABEZADO ROJO (Estilo señalética) --- */
     .sign-header {
-      background: #d92b2b; /* Rojo supermercado */
+      background: #d92b2b;
       padding: 12px 0;
       text-align: center;
       border-bottom: 3px solid #a31d1d;
       box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2);
+      border-radius: 4px 4px 0 0;
     }
 
     .sign-header h2 {
@@ -106,18 +185,15 @@ import { Component, output } from '@angular/core';
       font-family: 'Arial Black', Impact, sans-serif;
       font-size: 1.3rem;
       letter-spacing: 2px;
-      text-transform: uppercase;
       text-shadow: 2px 2px 0px rgba(0,0,0,0.4);
     }
 
-    /* --- CUERPO DEL CARTEL --- */
     .sign-body {
       padding: 25px 30px;
       display: flex;
       justify-content: center;
     }
 
-    /* --- INPUT ESTILO INDUSTRIAL --- */
     .search-input-wrapper {
       position: relative;
       width: 100%;
@@ -129,7 +205,6 @@ import { Component, output } from '@angular/core';
       position: absolute;
       left: 15px;
       font-size: 1.2rem;
-      color: #666;
       z-index: 2;
     }
 
@@ -143,29 +218,205 @@ import { Component, output } from '@angular/core';
       color: #222;
       outline: none;
       box-sizing: border-box;
-      /* Sombra interior para que parezca un hueco en el metal */
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.8);
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.2);
       transition: all 0.2s ease;
-      font-family: Arial, sans-serif;
     }
 
     .metal-input:focus {
-      border-color: #d92b2b; /* Brillo rojo al enfocar */
+      border-color: #d92b2b;
       background: #fff;
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.1), 0 0 8px rgba(217, 43, 43, 0.4);
+      box-shadow: 0 0 8px rgba(217,43,43,0.4);
     }
 
     .metal-input::placeholder {
       color: #888;
       font-weight: bold;
     }
+
+    /* POST-IT */
+
+    .post-it {
+      position: absolute;
+      top: -12px;
+      right: -22px;
+      width: 125px;
+      background: #fff19a;
+      color: #4b4328;
+      z-index: 20;
+      transform: rotate(5deg);
+      box-shadow: 3px 5px 9px rgba(0,0,0,0.3);
+      transition:
+        width 0.3s ease,
+        transform 0.3s ease;
+      border-bottom: 3px solid #e5d36d;
+      border-radius: 2px;
+    }
+
+    .post-it::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: 0;
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(
+        135deg,
+        #e5d36d 50%,
+        #fff19a 50%
+      );
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+
+    .post-it:hover {
+      transform: rotate(2deg) translateY(-3px);
+    }
+
+    .post-it.expanded {
+      width: 230px;
+      transform: rotate(0deg);
+    }
+
+    .post-it-header {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      color: #4b4328;
+      font-weight: bold;
+      font-size: 0.9rem;
+      font-family: 'Comic Sans MS', cursive;
+    }
+
+    .arrow {
+      font-size: 1.3rem;
+    }
+
+    .post-it-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 5px 14px 18px;
+      font-family: Arial, sans-serif;
+      animation: appear 0.25s ease;
+    }
+
+    .post-it-content h3 {
+      margin: 0 0 5px;
+      font-family: 'Comic Sans MS', cursive;
+      font-size: 1rem;
+    }
+
+    .post-it-content label {
+      font-size: 0.78rem;
+      font-weight: bold;
+    }
+
+    .post-it-content input,
+    .post-it-content select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 7px;
+      border: 1px solid #c5b45b;
+      border-radius: 3px;
+      background: #fffbea;
+      color: #333;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .post-it-content input:focus,
+    .post-it-content select:focus {
+      border-color: #a18b24;
+    }
+
+    .clear-button {
+      margin-top: 8px;
+      padding: 8px;
+      background: #e7d36a;
+      border: 1px solid #bca942;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #4b4328;
+    }
+
+    .clear-button:hover {
+      background: #dbc34b;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .metal-sign {
+        width: calc(100% - 40px);
+      }
+
+      .post-it {
+        right: -10px;
+      }
+
+      .post-it.expanded {
+        right: -5px;
+      }
+    }
   `]
 })
 export class SearchSignComponent {
+
   searchChange = output<string>();
+  filtersChange = output<SearchFilters>();
+
+  filtersOpen = signal(false);
+
+  filters: SearchFilters = {
+    minPrice: '',
+    maxPrice: '',
+    supermarket: '',
+    sortBy: ''
+  };
+
+  toggleFilters() {
+    this.filtersOpen.update(value => !value);
+  }
 
   onInput(event: Event) {
     const input = event.target as HTMLInputElement;
     this.searchChange.emit(input.value);
+  }
+
+  updateFilter(
+    filter: keyof SearchFilters,
+    event: Event
+  ) {
+    const input = event.target as HTMLInputElement | HTMLSelectElement;
+
+      this.filters[filter] = input.value as string;
+    
+
+    this.filtersChange.emit({ ...this.filters });
+  }
+
+  clearFilters() {
+    this.filters = {
+      minPrice: '',
+      maxPrice: '',
+      supermarket: '',
+      sortBy: ''
+    };
+
+    this.filtersChange.emit({ ...this.filters });
   }
 }
