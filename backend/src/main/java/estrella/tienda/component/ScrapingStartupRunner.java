@@ -22,6 +22,7 @@ public class ScrapingStartupRunner implements ApplicationRunner {
         System.out.println("==================================");
 
         // Obtener libros
+        /*
         try {
             System.out.println("Iniciando scraping de libros...");
 
@@ -33,7 +34,7 @@ public class ScrapingStartupRunner implements ApplicationRunner {
             System.err.println("Error obteniendo los libros:");
             e.printStackTrace();
         }
-
+*/
         // Obtener productos de Mercadona
         try {
             System.out.println("Iniciando scraping de productos...");

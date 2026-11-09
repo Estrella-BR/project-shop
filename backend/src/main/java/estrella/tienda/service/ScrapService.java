@@ -27,6 +27,9 @@ public class ScrapService {
     @Autowired
     private CarrefourScrapService carrefourScrapService;
 
+    @Autowired
+    private DiaScrapService diaScrapService;
+
 
     public List<Product> getAllBooks() throws IOException {
 
@@ -52,9 +55,9 @@ public class ScrapService {
         System.out.println("Empezando a obtener los productos...");
 
         //Call functions
-        products.addAll(mercadonaScrapeService.extractFromAllCategories());
+       // products.addAll(mercadonaScrapeService.extractFromAllCategories());
        // products.addAll(carrefourScrapService.obtenerTodosLosProductos());
-
+        products.addAll(diaScrapService.extractFromAllCategories());
 
         System.out.println("Productos obtenidos.");
 

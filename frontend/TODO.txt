@@ -1,8 +1,8 @@
 
-Conectar con filtros de back y ver si va bien
-
 Hacer el spinner más bonito
 
-cambiar el searchbar para todos los filtros
+Obtener de más supermercados (Carrefour, Aldi, Dia)
 
-Obtener de más supermercados (Carrefour)
+Hacer algo para agrandar la información del producto
+
+Mirar bien lo de cantidad del producto, ahora no es cantidad es el tipo

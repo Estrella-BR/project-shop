@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,16 +25,84 @@ public class CarrefourScrapService {
 
     private static final int PAGE_SIZE = 24;
 
+    @Value("${CARREFOUR_CF_BM:}")
+    private String cfBm;
+
+    @Value("${CARREFOUR_SESSION_ID:}")
+    private String sessionId;
+
+
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private final Map<String, String> headers = Map.of(
-            "User-Agent",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
-            "Accept",
-            "application/json, text/plain, */*",
-            "Accept-Language",
-            "es-ES,es;q=0.9"
-    );
+    public void probarCarrefour() {
+
+        try {
+            Connection.Response response = Jsoup.connect(
+                            "https://www.carrefour.es/"
+                    )
+                    .userAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                                    "AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36"
+                    )
+                    .timeout(30000)
+                    .execute();
+
+            System.out.println("HTTP: " + response.statusCode());
+            System.out.println("URL: " + response.url());
+            System.out.println("Título: " + response.parse().title());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+    private JsonNode peticionJson(String url) throws IOException {
+
+        Connection connection = Jsoup.connect(url)
+                .method(Connection.Method.GET)
+                .userAgent(
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                                "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                                "Chrome/131.0.0.0 Safari/537.36"
+                )
+                .header("Accept", "application/json, text/plain, */*")
+                .header("Accept-Language", "es-ES,es;q=0.9")
+                .header("Referer", "https://www.carrefour.es/")
+                .header("Origin", "https://www.carrefour.es")
+                .ignoreContentType(true)
+                .ignoreHttpErrors(true)
+                .timeout(30000);
+
+        if (!cfBm.isBlank()) {
+            connection.cookie("__cf_bm", cfBm);
+        }
+
+        if (!sessionId.isBlank()) {
+            connection.cookie("session_id", sessionId);
+        }
+
+        Connection.Response response = connection.execute();
+
+        int status = response.statusCode();
+
+        System.out.println("Carrefour HTTP: " + status);
+
+        if (status != 200) {
+            throw new IOException(
+                    "Error Carrefour HTTP " + status +
+                            " - Respuesta: " +
+                            response.body().substring(
+                                    0, Math.min(response.body().length(), 500)
+                            )
+            );
+        }
+
+        return mapper.readTree(response.body());
+    }
+
 
     /**
      * Obtiene todas las categorías de supermercado.
@@ -191,17 +260,4 @@ public class CarrefourScrapService {
         );
     }
 
-    /**
-     * Realiza una petición y devuelve el JSON.
-     */
-    private JsonNode peticionJson(String url) throws IOException {
-
-        Connection.Response response = Jsoup.connect(url)
-                .headers(headers)
-                .ignoreContentType(true)
-                .timeout(30000)
-                .execute();
-
-        return mapper.readTree(response.body());
-    }
 }
