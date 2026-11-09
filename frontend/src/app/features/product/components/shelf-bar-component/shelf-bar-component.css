@@ -1,58 +1,249 @@
-
+/* ============ estantería (sin cambios) ============ */
 .shelf-bar {
-    min-height: 40px;
-    background-color: #9ca3af;
-    border-top: 4px solid #6b7280;
-    border-bottom: 4px solid #4b5563;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    padding: 8px 10px;
-    box-sizing: border-box;
+  min-height: 40px;
+  background-color: #9ca3af;
+  border-top: 4px solid #6b7280;
+  border-bottom: 4px solid #4b5563;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 8px 10px;
+  box-sizing: border-box;
 }
 
 .price-tag {
-    width: 15rem;
-    min-height: 65px;
-    background-color: #f8f9fa;
-    border: 2px solid #d92b2b;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 4px;
-    box-sizing: border-box;
-    color: #333;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  width: 15rem;
+  min-height: 65px;
+  background-color: #f8f9fa;
+  border: 2px solid #d92b2b;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  box-sizing: border-box;
+  color: #333;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+  transition: transform .15s, box-shadow .15s, border-color .15s;
 }
 
 .tag-name {
-    font-size: 1rem;
-    font-weight: bold;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 2px;
-    margin-bottom: 2px;
+  font-size: 1rem;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
 }
 
-.tag-price {
-    color: #d92b2b;
-    font-weight: 900;
-    font-size: 0.9rem;
+.tag-price { color: #d92b2b; font-weight: 900; font-size: .9rem; }
+.tag-qty   { color: #666; font-size: .7rem; }
+.tag-seller{ color: #333; font-size: .8rem; margin-top: 2px; }
+
+.price-tag:hover {
+  transform: translateY(-2px);
+  border-color: #9f0303;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .12);
+  cursor: zoom-in;
 }
 
-.tag-qty {
-    color: #666;
-    font-size: 0.7rem;
+.price-tag:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
 }
 
-.tag-seller {
-    color: #333;
-    font-size: 0.8rem;
-    margin-top: 2px;
+/* ============ modal ============ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;          /* crece hacia arriba */
+  padding: 24px;
+  background: rgba(17, 24, 39, .65);
+  backdrop-filter: blur(2px);
+  animation: fadeIn .15s ease-out;
 }
+
+.modal-card {
+  position: relative;
+  width: min(860px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+  animation: pop .18s ease-out;
+}
+
+/* ----- layout: imagen al lado ----- */
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr;       /* móvil: apilado */
+}
+
+.modal-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f3f4f6;
+  overflow: hidden;
+}
+
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 4rem;
+  font-weight: 800;
+  color: #9ca3af;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+}
+
+.modal-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #111827;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+}
+
+.modal-content {
+  padding: 24px;
+  min-width: 0;                      /* permite wrap dentro del grid */
+}
+
+/* ----- en desktop: imagen a la izquierda ----- */
+@media (min-width: 720px) {
+  .modal-body {
+    grid-template-columns: minmax(240px, 40%) 1fr;
+    align-items: stretch;
+  }
+  .modal-image {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 100%;
+  }
+}
+
+/* ----- cabecera ----- */
+.modal-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eef0f3;
+  margin-bottom: 12px;
+}
+
+.modal-card .tag-name {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+  line-height: 1.25;
+  color: #111827;
+
+  /* deshacer truncado heredado de .tag-name */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  border-bottom: none;
+  padding-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-card .tag-price {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #d92b2b;
+  letter-spacing: -.02em;
+}
+
+/* ----- detalles ----- */
+.details {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.details > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef0f3;
+}
+.details > div:last-child { border-bottom: none; padding-bottom: 0; }
+
+.details dt {
+  color: #6b7280;
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+
+.details dd {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+  max-width: 65%;
+  text-align: right;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.details dd a {
+  color: #111827;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px dashed currentColor;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  transition: color .15s, border-color .15s;
+}
+.details dd a:hover { color: #d92b2b; border-bottom-style: solid; }
+.details dd a:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ----- botón cerrar ----- */
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  color: #111827;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+.modal-close:hover { font-weight: 700;  }
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes pop    { from { transform: scale(.94) translateY(8px); opacity: 0 } to { transform: none; opacity: 1 } }

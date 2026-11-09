@@ -1,10 +1,66 @@
+<!-- estantería -->
 <div class="shelf-bar">
-  @for (product of products; track product.name) {
-    <div class="price-tag">
+  @for (product of products; track $index) {
+    <button
+      type="button"
+      class="price-tag"
+      (click)="open(product)"
+      [attr.aria-label]="'Ver detalles de ' + product.name">
       <span class="tag-name">{{ product.name }}</span>
       <span class="tag-price">{{ product.price }} €</span>
       <span class="tag-qty">Cant: {{ product.quantity }}</span>
       <span class="tag-seller">Vendedor: {{ product.seller }}</span>
-    </div>
+    </button>
   }
 </div>
+
+<!-- modal -->
+@if (selected(); as p) {
+  <div class="modal-backdrop" (click)="close()">
+    <div
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="p.name"
+      (click)="$event.stopPropagation()">
+
+      <button class="modal-close" (click)="close()" aria-label="Cerrar">×</button>
+
+      <div class="modal-body">
+        <!-- imagen a la izquierda -->
+        <div class="modal-image">
+          @if (p.image) {
+            <img [src]="p.image" [alt]="p.name" loading="lazy" />
+          } @else {
+            <div class="modal-image-placeholder" aria-hidden="true">
+              {{ p.name.charAt(0) }}
+            </div>
+          }
+        </div>
+
+        <!-- contenido a la derecha -->
+        <div class="modal-content">
+          <header class="modal-header">
+            <h2 class="tag-name">{{ p.name }}</h2>
+            <p class="tag-price">{{ p.price }} €</p>
+          </header>
+
+          <dl class="details">
+            <div><dt>Cantidad</dt><dd>{{ p.quantity }}</dd></div>
+            <div><dt>Vendedor</dt><dd>{{ p.seller }}</dd></div>
+
+            @if (p.url) {
+              <div>
+                <dt>URL</dt>
+                <dd>
+                  <a [href]="p.url" [title]="p.url"
+                     target="_blank" rel="noopener noreferrer">{{ p.url }}</a>
+                </dd>
+              </div>
+            }
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+}
