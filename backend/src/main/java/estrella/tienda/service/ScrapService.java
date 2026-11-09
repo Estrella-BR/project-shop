@@ -25,7 +25,7 @@ public class ScrapService {
     private BooksToScrapeService booksToScrapeService;
 
     @Autowired
-    private CarrefourScrapService carrefourScrapService;
+    private ConsumScrapService consumScrapService;
 
     @Autowired
     private DiaScrapService diaScrapService;
@@ -54,12 +54,12 @@ public class ScrapService {
 
         System.out.println("Empezando a obtener los productos...");
 
-        //Call functions
-       // products.addAll(mercadonaScrapeService.extractFromAllCategories());
-       // products.addAll(carrefourScrapService.obtenerTodosLosProductos());
-        products.addAll(diaScrapService.extractFromAllCategories());
+        //Call service
+       //products.addAll(mercadonaScrapeService.extractFromAllCategories());
+        //products.addAll(diaScrapService.extractFromAllCategories());
+        products.addAll(consumScrapService.extractFromAllCategories());
 
-        System.out.println("Productos obtenidos.");
+
 
         saveProducstJson(products, "productos");
 

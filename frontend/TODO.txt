@@ -1,7 +1,7 @@
 
 Hacer el spinner más bonito
 
-Obtener de más supermercados (Carrefour, Aldi, Dia)
+Obtener de más supermercados (Consum, Masymas, Family cash)
 
 Hacer algo para agrandar la información del producto
 

@@ -16,11 +16,6 @@ public class ScrapingStartupRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-
-        System.out.println("==================================");
-        System.out.println("INICIANDO PROCESO DE SCRAPING");
-        System.out.println("==================================");
-
         // Obtener libros
         /*
         try {
@@ -36,7 +31,7 @@ public class ScrapingStartupRunner implements ApplicationRunner {
         }
 */
         // Obtener productos de Mercadona
-        try {
+      /*  try {
             System.out.println("Iniciando scraping de productos...");
 
             scrapService.getAllProducts();
@@ -48,8 +43,7 @@ public class ScrapingStartupRunner implements ApplicationRunner {
             e.printStackTrace();
         }
 
-        System.out.println("==================================");
-        System.out.println("PROCESO DE SCRAPING FINALIZADO");
-        System.out.println("==================================");
+       */
+
     }
 }
