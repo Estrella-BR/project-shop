@@ -22,7 +22,17 @@
 @else {
   
   <div class="supermarket">
-    <app-shelf-top></app-shelf-top>
+    
+    <div class="shelf-top-container">
+      <div class="top-frame">
+      </div>
+
+      <div class="brackets">
+        <div class="bracket"></div>
+        <div class="bracket"></div>
+        <div class="bracket"></div>
+      </div>
+    </div>
 
     @for (shelf of shelves(); track $index) {
       <app-shelf [products]="shelf"></app-shelf>

@@ -1,0 +1,100 @@
+<div class="sign-container">
+
+      <div class="ceiling-bracket left"></div>
+      <div class="ceiling-bracket right"></div>
+
+      <div class="metal-sign">
+
+        <div class="rivet top-left"></div>
+        <div class="rivet top-right"></div>
+        <div class="rivet bottom-left"></div>
+        <div class="rivet bottom-right"></div>
+
+        <div class="sign-header">
+          <h2>SECCIÓN: BÚSQUEDA</h2>
+        </div>
+
+        <div class="sign-body">
+
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+
+            <input
+              type="text"
+              placeholder="Escribe el nombre del producto..."
+              (input)="onInput($event)"
+              class="metal-input"
+            >
+          </div>
+
+        </div>
+
+        <!-- POST-IT -->
+        <div
+          class="post-it"
+          [class.expanded]="filtersOpen()"
+        >
+
+          <button
+            class="post-it-header"
+            (click)="toggleFilters()"
+            [attr.aria-expanded]="filtersOpen()"
+          >
+            <span>📌 Más filtros</span>
+
+            <span class="arrow">
+              {{ filtersOpen() ? '−' : '+' }}
+            </span>
+          </button>
+
+          @if (filtersOpen()) {
+            <div class="post-it-content">
+              <div class="filter-field">
+                <label>Precio mínimo (€)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  (input)="updateFilter('minPrice', $event)"
+                >
+              </div>
+
+              <div class="filter-field">
+                <label>Precio máximo (€)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Sin límite"
+                  (input)="updateFilter('maxPrice', $event)"
+                >
+              </div>
+
+              <div class="filter-field">
+                <label>Supermercado</label>
+                <select
+                  (change)="updateFilter('supermarket', $event)"
+                >
+                  <option value="">Todos</option>
+                  @for (item of sellers(); track $index) {
+                    <option value="{{ item }}">{{ item }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <label>Ordenar por</label>
+                <select
+                  (change)="updateFilter('sortBy', $event)"
+                >
+                  <option value="">Sin orden</option>
+                  <option value="asc">Precio: menor a mayor</option>
+                  <option value="desc">Precio: mayor a menor</option>
+                </select>
+              </div>
+            </div>
+          }
+
+        </div>
+
+      </div>
+    </div>

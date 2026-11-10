@@ -6,3 +6,5 @@ Obtener de más supermercados (Consum, Masymas, Family cash)
 Hacer algo para agrandar la información del producto
 
 Mirar bien lo de cantidad del producto, ahora no es cantidad es el tipo
+
+NO CREO POSIBLES: Carrefour, Aldi
