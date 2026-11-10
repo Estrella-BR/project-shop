@@ -7,31 +7,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
-import tools.jackson.databind.node.ArrayNode;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class ConsumScrapService {
-
-
-    private static final int PAGE_SIZE = 24;
-    private static final int MAX_PAGINAS_POR_CATEGORIA = 60;
-
-    // Constantes corregidas
-    private static final String URL = "https://tienda.consum.es";
-    // La base de la API es diferente
-    private static final String CATEGORIES_URL = URL + "/api/rest/V1.0/shopping/category/menu";
-
-
+    private static final String URL = "https://tienda.consum.es/api/rest/V1.0";
+    private static final String CATEGORIES_URL = URL + "/shopping/category/menu";
+    private static final String PRODUCTS_URL = URL + "/catalog/product";
+    private static final int maxTry = 50;
     private final Connection session;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -45,7 +32,6 @@ public class ConsumScrapService {
     }
 
     public List<Product> extractFromAllCategories() {
-
         List<Product> products = new ArrayList<>();
 
         for(String category: this.getCategories()){
@@ -55,36 +41,101 @@ public class ConsumScrapService {
         return products;
     }
 
-    private List< Product> getProductsFromCategory(String categoryUrl) {
+    private List<Product> getProductsFromCategory(String categoryUrl) {
         List<Product> products = new ArrayList<>();
-        try {
-            Connection.Response response = session
-                    .newRequest(categoryUrl)
-                    .method(Connection.Method.GET)
-                    .ignoreContentType(true)
-                    .ignoreHttpErrors(true)
-                    .timeout(20_000)
-                    .execute();
+        int tries = 0;
+        int limit = 50;
+        boolean hasMore = true;
 
-            if (response.statusCode() != 200) {
-                return products;
+        //Change the limit until all the products are on one page
+        while(hasMore == true && maxTry > tries) {
+            try {
+                Connection.Response response = session
+                        .newRequest( PRODUCTS_URL)
+                        .method(Connection.Method.GET)
+                        .data("limit", String.valueOf(limit))
+                        .data("categories", categoryUrl)
+                        .data("page", "1")
+                        .data("orderById", "5")
+                        .data("showProducts", "true")
+                        .data("showRecommendations", "false")
+                        .data("includeFilters", "false")
+                        .data("originProduct", "undefined")
+                        .data("offset", "1")
+                        .ignoreContentType(true)
+                        .ignoreHttpErrors(true)
+                        .execute();
+                tries++;
+                limit = limit + 25;
+
+                if (response.statusCode() != 200) {
+                    System.out.println(
+                            "Error obtaining products: " +
+                                    response.body() + " " + URL + PRODUCTS_URL
+                    );
+                }
+
+                JsonNode root = objectMapper.readTree(response.body());
+
+                boolean moreObjects = root.path("hasMore").asBoolean(true);
+
+                if (moreObjects == true) {
+                    hasMore = false;
+
+                    JsonNode items = root.path("products");
+
+                    for(JsonNode node: items){
+                        products.add(this.getProductFromJSON(node));
+                    }
+
+                }
+            } catch (Exception e){
+                hasMore = false;
+                System.out.println("Error durante la conexión: " + e);
             }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
-
 
         return products;
     }
 
+    private Product getProductFromJSON(JsonNode node){
+        Product p = new Product();
+
+        p.setName(node.path("productData").path("name").asText(null));
+        p.setUrl(node.path("productData").path("url").asText(null));
+        p.setImage(node.path("media").path(0).path("url").asText(null));
+        String price = node.path("priceData").path("prices").path(0).path("value").path("centAmount").asText();
+        String description = node.path("productData").path("description").asText(null);
+
+        p.setCuantity(this.getQuantity(description));
+        p.setPrice(this.cleanPrice(price));
+        p.setSeller("Consum");
+        return p;
+    }
+
+    private String cleanPrice(String ogPrice){
+        String clean = ogPrice.replaceAll("0+$", "").replaceAll("\\.$", "");
+        return clean;
+    }
+
+    private String getQuantity(String description){
+        Pattern pattern = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*(Gr|gr|g|G|Kg|kg|Ml|ml|L|l)\\b");
+        Matcher matcher = pattern.matcher(description);
+
+        String cuantiy = "";
+
+        if (matcher.find()) {
+            cuantiy = matcher.group(0);
+        }
+
+        return cuantiy;
+    }
+
     private List<String> getCategories(){
-
         List<String> categories = new ArrayList<>();
-
         try {
             Connection.Response response = session
-                    .newRequest(CATEGORIES_URL)
+                    .newRequest( CATEGORIES_URL)
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
@@ -92,22 +143,21 @@ public class ConsumScrapService {
 
             if (response.statusCode() != 200) {
                 System.out.println(
-                        "Error obteniendo categorías: " +
+                        "Error obtaining categories: " +
                                 response.body()
                 );
-
             }
 
             JsonNode root = objectMapper.readTree(response.body());
 
             for(JsonNode node: root){
-                    String url = node.path("url").asText();
-                    categories.add(url);
+                    String id = node.path("id").asText();
+                    categories.add(id);
                 }
 
         }
         catch (Exception e){
-
+            System.out.println("Error getting the categories: " + e);
         }
 
         return categories;
