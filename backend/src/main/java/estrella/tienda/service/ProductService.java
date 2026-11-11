@@ -186,7 +186,7 @@ public class ProductService {
             if (product.getCleanImage() == null) {
                 product.setCleanImage(
                         imageProcessingService.processImage(
-                                product.getImage()
+                                product.getImage(),product.getImgName()
                         )
                 );
             }

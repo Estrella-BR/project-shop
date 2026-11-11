@@ -35,15 +35,9 @@ public class ScrapService {
 
         List<Product> products = new ArrayList<>();
 
-        System.out.println("Empezando a obtener los libros...");
-
         products.addAll(booksToScrapeService.getAllProducts());
 
-        System.out.println("Libros obtenidos.");
-
         saveProducstJson(products, "libros");
-
-        System.out.println("Archivo de libros creado.");
 
         return products;
     }
@@ -52,18 +46,14 @@ public class ScrapService {
 
         List<Product> products = new ArrayList<>();
 
-        System.out.println("Empezando a obtener los productos...");
-
-        //Call service
-       //products.addAll(mercadonaScrapeService.extractFromAllCategories());
-        //products.addAll(diaScrapService.extractFromAllCategories());
-        products.addAll(consumScrapService.extractFromAllCategories());
-
-
+        //Call services
+        products.addAll(mercadonaScrapeService.extractFromAllCategories());
+       // products.addAll(diaScrapService.extractFromAllCategories());
+        //products.addAll(consumScrapService.extractFromAllCategories());
 
         saveProducstJson(products, "productos");
 
-        System.out.println("Archivo de productos creado.");
+        System.out.println("File created.");
 
         return products;
     }
@@ -72,10 +62,6 @@ public class ScrapService {
             List<Product> productos,
             String fileName
     ) throws IOException {
-
-        System.out.println(
-                "Tamaño de lista: " + productos.size()
-        );
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -88,10 +74,5 @@ public class ScrapService {
         Path archivo = directorio.resolve(fileName + ".json");
 
         mapper.writeValue(archivo.toFile(), productos);
-
-        System.out.println(
-                "JSON guardado en: " +
-                        archivo.toAbsolutePath()
-        );
     }
 }

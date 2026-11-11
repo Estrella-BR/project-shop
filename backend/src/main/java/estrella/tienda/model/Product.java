@@ -84,4 +84,8 @@ public class Product {
     public void setCleanImage(String cleanImage) {
         this.cleanImage = cleanImage;
     }
+
+    public String getImgName(){
+        return name + "_" + cuantity + "_" + seller;
+    }
 }
