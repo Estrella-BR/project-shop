@@ -110,6 +110,8 @@ public class ConsumScrapService {
         p.setCuantity(this.getQuantity(description));
         p.setPrice(this.cleanPrice(price));
         p.setSeller("Consum");
+        p.generateId();
+
         return p;
     }
 

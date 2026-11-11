@@ -25,6 +25,9 @@ public class ScrapService {
     private BooksToScrapeService booksToScrapeService;
 
     @Autowired
+    private  ImageProcessingService imageProcessingService;
+
+    @Autowired
     private ConsumScrapService consumScrapService;
 
     @Autowired
@@ -50,6 +53,12 @@ public class ScrapService {
         products.addAll(mercadonaScrapeService.extractFromAllCategories());
        // products.addAll(diaScrapService.extractFromAllCategories());
         //products.addAll(consumScrapService.extractFromAllCategories());
+
+        for( Product prod : products){
+            prod.setCleanImage( imageProcessingService.processImage(
+                    prod.getImage(),prod.getImgName()
+            ));
+        }
 
         saveProducstJson(products, "productos");
 

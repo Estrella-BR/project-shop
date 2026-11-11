@@ -2,6 +2,7 @@ package estrella.tienda.model;
 
 public class Product {
 
+    private String id;
     private String name;
     private String price;
     private String cuantity;
@@ -77,6 +78,14 @@ public class Product {
         this.seller = seller;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getCleanImage() {
         return cleanImage;
     }
@@ -85,7 +94,17 @@ public class Product {
         this.cleanImage = cleanImage;
     }
 
+
     public String getImgName(){
         return name + "_" + cuantity + "_" + seller;
+    }
+
+    public void generateId() {
+        if (url != null && !url.isBlank()) {
+            this.id = seller.toLowerCase() + ":" + Integer.toHexString(url.hashCode());
+        }else{
+        this.id = seller.toLowerCase() + ":"
+                + Integer.toHexString((name + "|" + cuantity).hashCode());
+        }
     }
 }

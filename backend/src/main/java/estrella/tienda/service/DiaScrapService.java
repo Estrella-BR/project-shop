@@ -379,7 +379,10 @@ public class DiaScrapService {
 
             String quantity = extraerCantidad(name);
 
-            products.add(new Product(name, price, quantity, image, url, "Dia"));
+            Product product = new Product(name, price, quantity, image, url, "Dia");
+
+            product.generateId();
+            products.add(product);
         }
 
         return products;

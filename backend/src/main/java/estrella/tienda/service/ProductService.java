@@ -21,10 +21,6 @@ public class ProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private  ImageProcessingService imageProcessingService;
-
-
     private List<Product> products;
 
     private static final Path PRODUCTOS_PATH =
@@ -79,17 +75,6 @@ public class ProductService {
         // Obtener productos paginados
         PaginatedResponse<Product> respuesta =
                 PaginatedResponse.of(products, page, size);
-
-        // Procesar imágenes de los productos de la página actual
-        for (Product product : respuesta.content()) {
-            if (product.getCleanImage() == null) {
-                product.setCleanImage(
-                        imageProcessingService.processImage(
-                                product.getImage()
-                        )
-                );
-            }
-        }
 
         return respuesta;
     }
@@ -180,17 +165,6 @@ public class ProductService {
         // Paginar resultados después de ordenar
         PaginatedResponse<Product> respuesta =
                 PaginatedResponse.of(productosFiltrados, page, size);
-
-        // Procesar imágenes de la página actual
-        for (Product product : respuesta.content()) {
-            if (product.getCleanImage() == null) {
-                product.setCleanImage(
-                        imageProcessingService.processImage(
-                                product.getImage(),product.getImgName()
-                        )
-                );
-            }
-        }
 
         return respuesta;
     }

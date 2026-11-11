@@ -18,6 +18,7 @@ public class ScraperController {
         this.scraperService = scraperService;
     }
 
+
     @GetMapping("/products")
     public List<Product> getProducts() {
         try {

@@ -322,6 +322,7 @@ public class MercadonaScrapeService {
                         productUrl,
                         "Mercadona"
                 );
+                product.generateId();
 
                 products.add(product);
 
