@@ -3,7 +3,7 @@
 
   command = "ng build" 
 
-  publish = "dist" 
+  publish = "dist/frontend/browser" 
 
 [[redirects]]
   from = "/*"
