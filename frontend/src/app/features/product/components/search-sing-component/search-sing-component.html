@@ -69,17 +69,28 @@
                 >
               </div>
 
-              <div class="filter-field">
-                <label>Supermercado</label>
-                <select
-                  (change)="updateFilter('supermarket', $event)"
-                >
-                  <option value="">Todos</option>
-                  @for (item of sellers(); track $index) {
-                    <option value="{{ item }}">{{ item }}</option>
-                  }
-                </select>
-              </div>
+             <div class="filter-field">
+  <label>Supermercados</label>
+
+  <mat-form-field
+    appearance="outline"
+    class="supermarket-multiselect"
+  >
+    <mat-select
+      multiple
+      placeholder="Seleccionar supermercados"
+      [value]="selectedSupermarkets()"
+      (selectionChange)="updateSupermarkets($event.value)"
+      panelClass="supermarket-panel"
+    >
+      @for (item of sellers(); track item) {
+        <mat-option [value]="item">
+          {{ item }}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field> 
+</div>
 
               <div class="filter-field">
                 <label>Ordenar por</label>
