@@ -3,7 +3,7 @@
 
   command = "ng build --prod" 
 
-  publish = "dist/Shop" 
+  publish = "dist" 
 
 [[redirects]]
   from = "/*"
