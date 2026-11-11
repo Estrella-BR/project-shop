@@ -1,0 +1,11 @@
+[build]
+  base = "frontend" 
+
+  command = "ng build --prod" 
+
+  publish = "dist/Shop" 
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
