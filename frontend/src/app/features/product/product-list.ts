@@ -66,8 +66,8 @@ export class ProductListComponent implements OnInit {
 
   loadResponse(response: PaginatedResponse<Product>): void {
     this.products.set(response.content);
-    this.page.set(response.page);
-    this.totalPages.set(response.totalPages);
+    this.page.set(response.page );
+    this.totalPages.set(response.totalPages-1);
     this.totalElements.set(response.totalElements);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
