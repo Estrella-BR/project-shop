@@ -6,8 +6,11 @@ import estrella.tienda.model.Product;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import org.aspectj.weaver.ast.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,28 +26,38 @@ public class ProductService {
 
     private List<Product> products;
 
-    private static final Path PRODUCTOS_PATH =
-            Paths.get("datos", "productos.json");
+    private static final Path FILES_DIR =
+            Paths.get("data", "files");
 
 
     // Leer el JSON una sola vez y mantenerlo en memoria
-    private synchronized void cargarProductos() throws IOException {
+    private synchronized void cargarProductos(List<String> sellers) throws IOException {
 
-        if (products != null) {
-            return;
-        }
+        products = new ArrayList<>();
 
-        if (!Files.exists(PRODUCTOS_PATH)) {
+        if (!Files.exists(FILES_DIR)) {
             throw new IOException(
                     "No se encuentra el archivo: " +
-                            PRODUCTOS_PATH.toAbsolutePath()
+                            FILES_DIR.toAbsolutePath()
             );
         }
 
-        products = objectMapper.readValue(
-                PRODUCTOS_PATH.toFile(),
-                new TypeReference<List<Product>>() {}
-        );
+        //If we don't expecify one we read all
+        if( sellers == null || sellers.isEmpty()){
+            sellers = new ArrayList<>();
+            sellers.add("mercadona");
+            sellers.add("dia");
+            sellers.add("consum");
+        }
+
+        for(String seller: sellers){
+            Path filePath = Paths.get("data", "files", seller + ".json");
+
+            products.addAll(objectMapper.readValue(
+                    filePath.toFile(),
+                    new TypeReference<List<Product>>() {}
+            ));
+        }
 
         System.out.println(
                 "Productos cargados en memoria: " +
@@ -70,7 +83,7 @@ public class ProductService {
             );
         }
 
-        cargarProductos();
+        cargarProductos(new ArrayList<>());
 
         // Obtener productos paginados
         PaginatedResponse<Product> respuesta =
@@ -86,7 +99,7 @@ public class ProductService {
             Double minPrice,
             Double maxPrice,
             String quantity,
-            String seller,
+            List<String> sellers,
             String sortByPrice
     ) throws IOException {
 
@@ -102,7 +115,7 @@ public class ProductService {
             );
         }
 
-        cargarProductos();
+        cargarProductos(sellers);
 
         // Aplicar filtros
         List<Product> productosFiltrados = products.stream()
@@ -126,12 +139,6 @@ public class ProductService {
                         || (product.getCuantity() != null &&
                         product.getCuantity().toLowerCase()
                                 .contains(quantity.trim().toLowerCase())))
-
-                // Filtrar por vendedor
-                .filter(product -> seller == null || seller.isBlank()
-                        || (product.getSeller() != null &&
-                        product.getSeller().toLowerCase()
-                                .contains(seller.trim().toLowerCase())))
 
                 .collect(java.util.stream.Collectors.toCollection(
                         java.util.ArrayList::new
@@ -189,6 +196,20 @@ public class ProductService {
         } catch (NumberFormatException e) {
             return 0.0;
         }
+    }
+
+    public List<Product> getBySeller(String sellerId) throws IOException {
+
+        Path file = FILES_DIR.resolve(sellerId + ".json");
+
+        if (!Files.exists(file)) {
+            return List.of();
+        }
+
+        return objectMapper.readValue(
+                file.toFile(),
+                new TypeReference<List<Product>>() {}
+        );
     }
 
 }

@@ -95,7 +95,7 @@ public class Product {
     }
 
 
-    public String getImgName(){
+    public String createImgName(){
         return name + "_" + cuantity + "_" + seller;
     }
 
