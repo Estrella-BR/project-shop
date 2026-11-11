@@ -57,7 +57,7 @@ export class ProductService {
       .set('category', category || '')
       .set('minPrice', minPrice || '')
       .set('maxPrice', maxPrice || '')
-      .set('seller', supermarket || '')
+      .set('sellers', supermarket || '')
       .set('sortByPrice', sortBy || '');
 
     return this.http.get<PaginatedResponse<CatalogProductResponse>>(
