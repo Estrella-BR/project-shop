@@ -1,59 +1,58 @@
-# Frontend
+# 🖥️ Project Shop – Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.1.
+Frontend de Project Shop, un proyecto personal desarrollado con **Angular y TypeScript**.
 
-## Development server
+Su objetivo es ofrecer una interfaz web desde la que consultar y explorar información de productos recopilada de diferentes supermercados mediante técnicas de web scraping.
 
-To start a local development server, run:
+## ✨ Funcionalidades
 
-```bash
-ng serve
+- Visualización de productos.
+- Búsqueda por nombre.
+- Aplicación de múltiples filtros.
+- Ordenación por precio.
+- Navegación mediante paginación.
+- Consulta de productos de diferentes supermercados.
+- Comunicación con el backend mediante peticiones HTTP.
+
+## 🛠️ Tecnologías
+
+- Angular
+- TypeScript
+- HTML5
+- CSS3
+
+## 🏗️ Arquitectura
+
+El frontend se comunica con el backend de Spring Boot mediante una API REST.
+
+A través de las peticiones HTTP obtiene los productos y los presenta al usuario, permitiendo interactuar con la información mediante búsquedas, filtros y opciones de ordenación.
+
+```text
+Angular
+   |
+   | HTTP / JSON
+   |
+Spring Boot API
+   |
+   |
+Productos recopilados
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🔗 Enlaces
 
-## Code scaffolding
+- Aplicación web: [[URL](https://shop-project-ebr.netlify.app/)]
+- Repositorio: [Project Shop](https://github.com/Estrella-BR/project-shop)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## ⚠️ Aviso
 
-```bash
-ng generate component component-name
-```
+Este frontend forma parte de un proyecto personal y experimental.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+No representa una plataforma oficial ni está afiliado, patrocinado o autorizado por los supermercados cuyos productos aparecen en la aplicación.
 
-```bash
-ng generate --help
-```
+La información mostrada procede de datos recopilados mediante web scraping y puede no estar actualizada o coincidir con los precios disponibles en las tiendas.
 
-## Building
+Las marcas y nombres comerciales pertenecen a sus respectivos titulares.
 
-To build the project run:
+## 👩‍💻 Autora
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+[Estrella Blanco](https://github.com/Estrella-BR)
