@@ -32,10 +32,6 @@ public class DiaScrapService {
             Pattern.CASE_INSENSITIVE
     );
 
-    // ==================================================
-    // PUNTO DE ENTRADA
-    // ==================================================
-
     public List<Product> extractFromAllCategories() {
 
         List<Product> allProducts = new ArrayList<>();
@@ -55,20 +51,17 @@ public class DiaScrapService {
                     Page page = context.newPage();
                     applyStealth(page);
 
-                    // 1. Navegar primero a la home y ACEPTAR COOKIES
                     page.navigate(URL, new Page.NavigateOptions()
                             .setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
                     page.waitForTimeout(2000);
                     acceptCookiesIfPresent(page);
 
-                    // 2. Obtener categorías vía API (ya con sesión válida)
                     List<String> categoryUrls = getCategoriesFromApi(page);
                     if (categoryUrls.isEmpty()) {
                         System.err.println("No se han encontrado categorías DIA.");
                         return allProducts;
                     }
 
-                    // 3. Recorrer categorías
                     Set<String> seen = new HashSet();
 
                     for (String categoryUrl : categoryUrls) {
@@ -99,9 +92,6 @@ public class DiaScrapService {
 
         return allProducts;
     }
-    // ==================================================
-    // HELPERS DE CONTEXTO
-    // ==================================================
 
     private BrowserContext createContext(Browser browser) {
 
@@ -134,17 +124,10 @@ public class DiaScrapService {
         }
     }
 
-    // ==================================================
-// ACEPTAR COOKIES (OneTrust)
-// ==================================================
-
     private void acceptCookiesIfPresent(Page page) {
         try {
-            // El banner de OneTrust carga tarde y en un iframe #onetrust-banner-sdk
-            // Damos margen para que aparezca
             page.waitForTimeout(1500);
 
-            // 1. Intento preferente: clic vía JS en el botón "Aceptar todas"
             Object clicked = page.evaluate("""
                 () => {
                     // Selectores que usa OneTrust para el botón "Allow All"
@@ -167,7 +150,6 @@ public class DiaScrapService {
                 """);
 
             if (clicked != null) {
-                // Esperar a que el banner desaparezca y recargue la página
                 try {
                     page.waitForSelector("#onetrust-banner-sdk",
                             new Page.WaitForSelectorOptions()
@@ -182,10 +164,6 @@ public class DiaScrapService {
         }
     }
 
-    // ==================================================
-// SCROLL HASTA CARGAR TODOS LOS PRODUCTOS
-// ==================================================
-
     private void scrollUntilAllProductsLoaded(Page page) {
 
         final String productSelector = "li[data-test-id='product-card-list-item']";
@@ -193,11 +171,10 @@ public class DiaScrapService {
         long previousCount = -1;
         int stableRounds = 0;
 
-        for (int i = 0; i < 50; i++) { // tope duro de 50 iteraciones por seguridad
+        for (int i = 0; i < 50; i++) {
 
-            // Scroll al fondo
             page.evaluate("window.scrollTo(0, document.body.scrollHeight)");
-            page.waitForTimeout(1200); // margen para que cargue el siguiente bloque
+            page.waitForTimeout(1200);
 
             long currentCount = ((Number) page.evaluate("""
                 () => document.querySelectorAll('li[data-test-id="product-card-list-item"]').length
@@ -214,7 +191,6 @@ public class DiaScrapService {
 
             previousCount = currentCount;
 
-            // Algunas veces Dia muestra un botón "Ver más". Lo intentamos clicar también.
             try {
                 Object moreClicked = page.evaluate("""
                     () => {
@@ -231,14 +207,10 @@ public class DiaScrapService {
             } catch (Exception ignored) { }
         }
 
-        // Subir arriba por si acaso (algunos selectores se comportan distinto en el fondo)
         page.evaluate("window.scrollTo(0, 0)");
         page.waitForTimeout(500);
     }
 
-    // ==================================================
-    // NAVEGACIÓN + ESPERA ROBUSTA
-    // ==================================================
 
     private void navigateAndWait(Page page, String url, String selectorToWaitFor) {
 
@@ -257,25 +229,18 @@ public class DiaScrapService {
                     + " — continuamos con el HTML disponible.");
         }
 
-        // Margen para contenido dinámico / hidratación de React
         page.waitForTimeout(1500);
     }
-
-    // ==================================================
-    // CATEGORÍAS
-    // ==================================================
 
 
     private List<String> getCategoriesFromApi(Page page) {
 
-        // 1. Asegurarnos de estar en el dominio para que fetch() use las cookies correctas
         if (!page.url().startsWith(URL)) {
             page.navigate(URL, new Page.NavigateOptions()
                     .setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
-            page.waitForTimeout(2000); // margen para que Akamai asiente la sesión
+            page.waitForTimeout(2000);
         }
 
-        // 2. Fetch desde el contexto del navegador (ya lleva cookies válidas)
         Object result = page.evaluate("""
             async () => {
                 const response = await fetch('/api/v1/common-aggregator/menu-data', {
@@ -289,7 +254,6 @@ public class DiaScrapService {
             }
             """);
 
-        // 3. Parsear con Gson
         Gson gson = new Gson();
         JsonObject root = gson.toJsonTree(result).getAsJsonObject();
 
@@ -298,7 +262,6 @@ public class DiaScrapService {
             return List.of();
         }
 
-        // 4. Solo categorías de primer nivel (ignoramos 'children')
         Set<String> categoryUrls = new LinkedHashSet<>();
         JsonArray categories = root.getAsJsonArray("categories");
 
@@ -311,7 +274,6 @@ public class DiaScrapService {
             String link = cat.get("link").getAsString().trim();
             if (link.isEmpty()) continue;
 
-            // Normalizar a URL absoluta
             if (link.startsWith("/")) {
                 link = URL.replaceAll("/$", "") + link;
             }
@@ -322,10 +284,6 @@ public class DiaScrapService {
 
         return new ArrayList<>(categoryUrls);
     }
-
-    // ==================================================
-    // PRODUCTOS DE UNA CATEGORÍA
-    // ==================================================
 
     @SuppressWarnings("unchecked")
     public List<Product> obtenerProductosCategoria(Page page, String categoryUrl) {
@@ -387,10 +345,6 @@ public class DiaScrapService {
 
         return products;
     }
-
-    // ==================================================
-    // UTILIDADES
-    // ==================================================
 
     private String str(Object o) {
         return o == null ? "" : o.toString();

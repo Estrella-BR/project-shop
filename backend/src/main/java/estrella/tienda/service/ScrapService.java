@@ -49,10 +49,9 @@ public class ScrapService {
 
         List<Product> products = new ArrayList<>();
 
-        //Call services
         products.addAll(mercadonaScrapeService.extractFromAllCategories());
-        //products.addAll(diaScrapService.extractFromAllCategories());
-       // products.addAll(consumScrapService.extractFromAllCategories());
+        products.addAll(diaScrapService.extractFromAllCategories());
+        products.addAll(consumScrapService.extractFromAllCategories());
 
         cleanImages(cleanImg,products);
 
@@ -98,7 +97,6 @@ public class ScrapService {
     public List<Product> getDiaProducts(Boolean cleanImg)throws IOException{
         List<Product> products = new ArrayList<>();
 
-        //Call services
         products.addAll(diaScrapService.extractFromAllCategories());
 
         cleanImages(cleanImg,products);
@@ -113,7 +111,6 @@ public class ScrapService {
     public List<Product> getConsumProducts(Boolean cleanImg)throws IOException{
         List<Product> products = new ArrayList<>();
 
-        //Call services
         products.addAll(consumScrapService.extractFromAllCategories());
 
         cleanImages(cleanImg,products);

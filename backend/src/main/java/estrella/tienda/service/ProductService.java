@@ -30,7 +30,6 @@ public class ProductService {
             Paths.get("data", "files");
 
 
-    // Leer el JSON una sola vez y mantenerlo en memoria
     private synchronized void cargarProductos(List<String> sellers) throws IOException {
 
         products = new ArrayList<>();
@@ -46,7 +45,7 @@ public class ProductService {
         if( sellers == null || sellers.isEmpty()){
             sellers = new ArrayList<>();
             sellers.add("mercadona");
-       //     sellers.add("dia");
+            sellers.add("dia");
             sellers.add("consum");
         }
 
@@ -58,14 +57,8 @@ public class ProductService {
                     new TypeReference<List<Product>>() {}
             ));
         }
-
-        System.out.println(
-                "Productos cargados en memoria: " +
-                        products.size()
-        );
     }
 
-    // Obtener productos paginados
     public PaginatedResponse<Product> getAll(
             int page,
             int size
@@ -85,7 +78,6 @@ public class ProductService {
 
         cargarProductos(new ArrayList<>());
 
-        // Obtener productos paginados
         PaginatedResponse<Product> respuesta =
                 PaginatedResponse.of(products, page, size);
 
@@ -117,24 +109,20 @@ public class ProductService {
 
         cargarProductos(sellers);
 
-        // Aplicar filtros
+        // Filters
         List<Product> productosFiltrados = products.stream()
 
-                // Filtrar por nombre
                 .filter(product -> name == null || name.isBlank()
                         || (product.getName() != null &&
                         product.getName().toLowerCase()
                                 .contains(name.trim().toLowerCase())))
 
-                // Filtrar por precio mínimo
                 .filter(product -> minPrice == null ||
                         obtenerPrecio(product.getPrice()) >= minPrice)
 
-                // Filtrar por precio máximo
                 .filter(product -> maxPrice == null ||
                         obtenerPrecio(product.getPrice()) <= maxPrice)
 
-                // Filtrar por cantidad
                 .filter(product -> quantity == null || quantity.isBlank()
                         || (product.getCuantity() != null &&
                         product.getCuantity().toLowerCase()
@@ -144,7 +132,6 @@ public class ProductService {
                         java.util.ArrayList::new
                 ));
 
-        // Ordenar por precio
         if ("asc".equalsIgnoreCase(sortByPrice)) {
 
             productosFiltrados.sort(
@@ -176,7 +163,6 @@ public class ProductService {
         return respuesta;
     }
 
-    // Convertir precio String a Double
     private double obtenerPrecio(String precio) {
 
         if (precio == null || precio.isBlank()) {

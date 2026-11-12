@@ -10,9 +10,8 @@ public class Category {
     private Integer level;
     private String link;
     private String name;
-    private List<Category> children;   // nested categories
+    private List<Category> children;
 
-    // getters and setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

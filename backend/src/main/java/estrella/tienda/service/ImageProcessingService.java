@@ -49,11 +49,9 @@ public class ImageProcessingService {
             return imageUrl;
         }
 
-        // Si nos dan un nombre, lo limpiamos para que sea seguro en archivos y URLs.
-        // Si no, generamos el UUID de siempre.
         String id;
         if (customName != null && !customName.isBlank()) {
-            // Quita espacios y caracteres raros (solo deja letras, números, guiones y guiones bajos)
+
             id = customName.trim().replaceAll("[^a-zA-Z0-9_-]", "_").toLowerCase();
         } else {
             id = UUID.randomUUID().toString();
@@ -63,7 +61,6 @@ public class ImageProcessingService {
         Path processed = IMAGE_DIRECTORY.resolve(id + ".png");
 
         try {
-            // 1. Descargar imagen original
             Connection.Response response = Jsoup.connect(imageUrl)
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)
@@ -88,18 +85,15 @@ public class ImageProcessingService {
                 return imageUrl;
             }
 
-            // 2. Guardar temporalmente la imagen
             original = Files.createTempFile(IMAGE_DIRECTORY, "original_", ".tmp");
             Files.write(original, imageBytes);
 
-            // 3. Ejecutar Python
-            // Le pasamos el nombre (id) como argumento --public-id para Cloudinary
             ProcessBuilder builder = new ProcessBuilder(
                     PYTHON_COMMAND,
                     PYTHON_SCRIPT.toString(),
                     original.toAbsolutePath().toString(),
                     processed.toAbsolutePath().toString(),
-                    "--public-id", id // <-- Le decimos a Python el nombre en Cloudinary
+                    "--public-id", id
             );
 
             builder.redirectErrorStream(true);
@@ -117,7 +111,6 @@ public class ImageProcessingService {
                 throw new IOException("Error de Python: " + output);
             }
 
-            // 4. Devolver la ruta pública
             return "/images/" + id + ".png";
 
         } catch (Exception e) {
