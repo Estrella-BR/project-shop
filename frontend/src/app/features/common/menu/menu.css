@@ -9,7 +9,7 @@
 }
 
 .brand {
-  color: #1d4ed8;
+  color: #df2828;
   font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -33,14 +33,14 @@
 
 .main-nav a:hover,
 .main-nav a.active {
-  border-bottom-color: #2563eb;
-  color: #1d4ed8;
+  border-bottom-color: #df2828;
+  color: #df2828;
 }
 
 .brand:focus-visible,
 .main-nav a:focus-visible {
   border-radius: 0.2rem;
-  outline: 3px solid #93c5fd;
+  outline: 3px solid #ea5c5c;
   outline-offset: 4px;
 }
 

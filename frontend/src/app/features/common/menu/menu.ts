@@ -11,8 +11,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 export class MenuComponent {
 
   options = [
-    { label: 'Home', path: '/' },
-    { label: 'Libros', path: '/books' },
+    { label: 'Inicio', path: '/' },
     { label: 'Productos', path: '/products' },
   ];
 }

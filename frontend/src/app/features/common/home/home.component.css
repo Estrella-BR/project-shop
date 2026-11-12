@@ -1,0 +1,151 @@
+
+:host {
+  display: block;
+}
+
+.home {
+  background: #f8f7f3;
+  color: #292929;
+  min-height: 100vh;
+}
+
+
+.hero {
+  min-height: 420px;
+  padding: 65px 10%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.hero > p {
+  max-width: 520px;
+  color: #666;
+  line-height: 1.8;
+  margin: 20px auto 30px;
+}
+
+
+.brand {
+  font-size: 22px;
+  font-weight: 900;
+  color: #df2828;
+  letter-spacing: 2px;
+  margin-bottom: 45px;
+}
+
+.hero h1 {
+  font-size: clamp(36px, 5vw, 55px);
+  line-height: 1.1;
+  margin: 0;
+  font-weight: 800;
+}
+
+.button {
+  display: inline-block;
+  padding: 15px 24px;
+  background: #df2828;
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 13px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #bd2020;
+}
+
+.about {
+  background: white;
+  padding: 65px 10%;
+  text-align: center;
+}
+
+.about h2 {
+  font-size: 30px;
+  margin-bottom: 15px;
+}
+
+.about > p {
+  max-width: 650px;
+  margin: auto;
+  color: #666;
+  line-height: 1.8;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 35px;
+  margin-top: 55px;
+  text-align: left;
+}
+
+.features article {
+  padding: 20px;
+  border-top: 2px solid #df2828;
+}
+
+.features article span {
+  color: #df2828;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.features h3 {
+  margin: 15px 0 8px;
+}
+
+.features p {
+  color: #777;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+footer {
+  padding: 35px 10%;
+  background: #292929;
+  color: white;
+  text-align: center;
+}
+
+footer strong {
+  font-size: 25px;
+}
+
+footer p {
+  color: #bbb;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+footer small {
+  display: block;
+  margin-top: 25px;
+  color: #888;
+}
+
+
+@media (max-width: 650px) {
+  .hero {
+    padding: 55px 7%;
+    min-height: 380px;
+  }
+
+  .about {
+    padding: 55px 7%;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  footer {
+    padding: 35px 7%;
+  }
+}

@@ -1,34 +1,40 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { ApiService } from '../services/api';
+
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  template: `
-    <section class="welcome">
-      <h1>Angular + Spring Boot</h1>
-      <p>{{ mensaje }}</p>
-    </section>
-  `,
-  styles: `
-    h1 {
-      color: #0f172a;
-      font-size: clamp(2rem, 5vw, 3rem);
-      margin: 0 0 0.75rem;
-    }
-
-    p {
-      color: #475569;
-      margin: 0;
-    }
-  `,
+  imports: [RouterLink],
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
-  private readonly apiService = inject(ApiService);
+export class HomeComponent {
 
-  mensaje = '¡Bienvenido a la tienda!';
+  supermercados = [
+    { nombre: 'Mercadona', color: '#00a6a6' },
+    { nombre: 'Consum', color: '#e53935' },
+    { nombre: 'DIA', color: '#e52329' }
+  ];
 
-  ngOnInit(): void {
-
-  }
+  pasos = [
+    {
+      numero: '01',
+      icono: '🔎',
+      titulo: 'Busca productos',
+      descripcion: 'Encuentra los productos que necesitas utilizando el buscador y los filtros.'
+    },
+    {
+      numero: '02',
+      icono: '⚖️',
+      titulo: 'Compara precios',
+      descripcion: 'Consulta cuánto cuesta un mismo producto en diferentes supermercados.'
+    },
+    {
+      numero: '03',
+      icono: '🛒',
+      titulo: 'Elige la mejor opción',
+      descripcion: 'Descubre dónde puedes comprar más barato y organiza mejor tu compra.'
+    }
+  ];
 }
