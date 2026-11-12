@@ -8,11 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,35 +35,30 @@ public class MercadonaScrapeService {
                 .header("Referer", URL + "/");
     }
 
-    // --------------------------------------------------
-    // CAMBIAR CODIGO POSTAL
-    // --------------------------------------------------
 
-    public String cambiarCodigoPostal(String codigoPostal) {
+    public String changeCP(String cp) {
 
         try {
 
-            if (codigoPostal == null ||
-                    !codigoPostal.matches("\\d{5}")) {
+            if (cp == null ||
+                    !cp.matches("\\d{5}")) {
 
                 System.out.println("Código postal no válido.");
                 return null;
             }
 
-            // Inicializar sesión y obtener cookies
             Connection.Response initialResponse = session
                     .newRequest(URL + "/")
                     .method(Connection.Method.GET)
                     .execute();
 
 
-            // Preparar JSON
             String payload =
                     "{\"new_postal_code\":\"" +
-                            codigoPostal +
+                            cp +
                             "\"}";
 
-            // Enviar petición POST
+
             Connection.Response response = session
                     .newRequest(
                             URL +
@@ -102,11 +94,8 @@ public class MercadonaScrapeService {
         }
     }
 
-    // --------------------------------------------------
-    // OBTENER CATEGORIAS Y SUBCATEGORIAS
-    // --------------------------------------------------
 
-    public List<JsonNode> obtenerCategorias(String warehouse) {
+    public List<JsonNode> obtainCategories(String warehouse) {
 
         List<JsonNode> categorias = new ArrayList<>();
 
@@ -175,11 +164,7 @@ public class MercadonaScrapeService {
         return categorias;
     }
 
-    // --------------------------------------------------
-    // OBTENER PRODUCTOS DE UNA CATEGORIA
-    // --------------------------------------------------
-
-    public List<Product> obtenerProductosCategoria(
+    public List<Product> obtainProductsInCategory(
             int categoryId,
             String warehouse
     ) {
@@ -219,9 +204,8 @@ public class MercadonaScrapeService {
 
             JsonNode root = objectMapper.readTree(response.body());
 
-            extraerProductosJson(root, products);
+            extractProductJson(root, products);
 
-            // Si no se encuentran productos, mostrar la respuesta
             if (products.isEmpty()) {
 
                 System.out.println(
@@ -249,11 +233,7 @@ public class MercadonaScrapeService {
         return products;
     }
 
-    // --------------------------------------------------
-    // EXTRAER PRODUCTOS DEL JSON
-    // --------------------------------------------------
-
-    private void extraerProductosJson(
+    private void extractProductJson(
             JsonNode node,
             List<Product> products
     ) {
@@ -265,7 +245,7 @@ public class MercadonaScrapeService {
         if (node.isArray()) {
 
             for (JsonNode child : node) {
-                extraerProductosJson(child, products);
+                extractProductJson(child, products);
             }
 
             return;
@@ -273,27 +253,21 @@ public class MercadonaScrapeService {
 
         if (node.isObject()) {
 
-            String name = obtenerTexto(
+            String name = obtainText(
                     node,
                     "display_name",
                     "name"
             );
 
-            String price = obtenerTexto(
+            String price = obtainText(
                     node,
                     "price_instructions.unit_price",
                     "price"
             );
 
-            String quantity = obtenerTexto(
-                    node,
-                    "packaging",
-                    "unit_size",
-                    "size_format",
-                    "format"
-            );
+            String quantity = extractQuantity(node);
 
-            String image = obtenerTexto(
+            String image = obtainText(
                     node,
                     "thumbnail",
                     "thumbnail_url",
@@ -301,7 +275,7 @@ public class MercadonaScrapeService {
                     "image_url"
             );
 
-            // Reconocer un producto mediante sus campos
+
             boolean esProducto =
                     !name.isEmpty() &&
                             (
@@ -328,24 +302,19 @@ public class MercadonaScrapeService {
 
             }
 
-            // Continuar recorriendo los objetos internos
             node.fields().forEachRemaining(entry -> {
 
                 JsonNode child = entry.getValue();
 
                 if (child.isArray() || child.isObject()) {
 
-                    extraerProductosJson(child, products);
+                    extractProductJson(child, products);
                 }
             });
         }
     }
 
-    // --------------------------------------------------
-    // OBTENER TEXTO DE UN CAMPO JSON
-    // --------------------------------------------------
-
-    private String obtenerTexto(
+    private String obtainText(
             JsonNode node,
             String... paths
     ) {
@@ -378,7 +347,6 @@ public class MercadonaScrapeService {
                 }
             }
 
-            // Algunos campos de imagen pueden ser objetos JSON
             if (value.isObject()) {
 
                 JsonNode url = value.get("url");
@@ -392,16 +360,83 @@ public class MercadonaScrapeService {
         return "";
     }
 
-    // --------------------------------------------------
-    // OBTENER PRODUCTOS DE TODAS LAS CATEGORIAS
-    // --------------------------------------------------
+    private String extractQuantity(JsonNode node) {
+        JsonNode price = node.get("price_instructions");
+        if (price == null || !price.isObject()) {
+            return "";
+        }
+
+        boolean isPack = price.path("is_pack").asBoolean(false);
+        int totalUnits = price.path("total_units").asInt(0);
+        String unitName = price.path("unit_name").asText("").trim();
+        double packSize = price.path("pack_size").asDouble(0);
+        double unitSize = price.path("unit_size").asDouble(0);
+        String sizeFormat = price.path("size_format").asText("").trim();
+        String packaging = node.path("packaging").asText("").trim();
+
+        if (isPack && totalUnits > 0 && packSize > 0) {
+            String weight = formatWeight(packSize, sizeFormat);
+            if (!weight.isEmpty()) {
+                if (!unitName.isEmpty()) {
+                    return totalUnits + " " + unitName + " x " + weight;
+                }
+                return totalUnits + " x " + weight;
+            }
+        }
+
+        if (unitSize > 0) {
+            String weight = formatWeight(unitSize, sizeFormat);
+            if (!weight.isEmpty()) {
+                if (!packaging.isEmpty()) {
+                    return packaging + " " + weight;
+                }
+                return weight;
+            }
+        }
+
+        return "";
+    }
+
+    private String formatWeight(double size, String format) {
+        if (size <= 0 || format.isEmpty()) {
+            return "";
+        }
+
+        switch (format.toLowerCase()) {
+            case "kg":
+                return size < 1
+                        ? formatNumber(size * 1000) + " g"
+                        : formatNumber(size) + " kg";
+            case "g":
+                return size >= 1000
+                        ? formatNumber(size / 1000) + " kg"
+                        : formatNumber(size) + " g";
+            case "l":
+                return size < 1
+                        ? formatNumber(size * 1000) + " ml"
+                        : formatNumber(size) + " L";
+            case "ml":
+                return size >= 1000
+                        ? formatNumber(size / 1000) + " L"
+                        : formatNumber(size) + " ml";
+            default:
+                return formatNumber(size) + " " + format;
+        }
+    }
+
+    private String formatNumber(double value) {
+        long rounded = Math.round(value);
+        if (Math.abs(value - rounded) < 0.001) {
+            return String.valueOf(rounded);
+        }
+        return String.format(java.util.Locale.ROOT, "%.1f", value);
+    }
 
     public List<Product> extractFromAllCategories() {
 
         List<Product> products = new ArrayList<>();
 
-        // 1. Configurar código postal
-        String warehouse = cambiarCodigoPostal(CODIGO_POSTAL);
+        String warehouse = changeCP(CODIGO_POSTAL);
 
         if (warehouse == null || warehouse.isBlank()) {
 
@@ -412,8 +447,7 @@ public class MercadonaScrapeService {
             return products;
         }
 
-        // 2. Obtener subcategorías
-        List<JsonNode> categorias = obtenerCategorias(warehouse);
+        List<JsonNode> categorias = obtainCategories(warehouse);
 
         if (categorias.isEmpty()) {
 
@@ -424,7 +458,6 @@ public class MercadonaScrapeService {
             return products;
         }
 
-        // 3. Recorrer todas las categorías
         Set<String> productosDuplicados = new HashSet<>();
 
         for (JsonNode categoria : categorias) {
@@ -434,14 +467,12 @@ public class MercadonaScrapeService {
             String categoryName =
                     categoria.path("name").asText();
 
-
             List<Product> categoryProducts =
-                    obtenerProductosCategoria(
+                    obtainProductsInCategory(
                             categoryId,
                             warehouse
                     );
-
-            // Evitar duplicados y procesar solamente productos nuevos
+            //Check for duplicates
             for (Product product : categoryProducts) {
 
                 String identificador =
@@ -449,8 +480,6 @@ public class MercadonaScrapeService {
                                 product.getPrice();
 
                 if (productosDuplicados.add(identificador)) {
-
-                    // Añadir producto
                     products.add(product);
                 }
             }
