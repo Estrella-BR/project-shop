@@ -59,7 +59,7 @@ app-product-component {
   border-top: 4px solid #6b7280;
   border-bottom: 4px solid #4b5563;
   display: flex;
-  justify-content: space-evenly; /* Distribuye las etiquetas equitativamente */
+  justify-content: space-evenly; 
   align-items: center;
   padding: 0 10px;
 }
@@ -202,7 +202,6 @@ app-product-component {
   font-weight: bold;
   text-shadow: 2px 2px 0px #1a1a24;
   letter-spacing: 1.5px;
-  /* Animación de pulso para el texto */
   animation: pulse 1.5s ease-in-out infinite;
 }
 

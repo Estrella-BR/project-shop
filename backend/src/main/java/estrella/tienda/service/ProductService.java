@@ -46,7 +46,7 @@ public class ProductService {
         if( sellers == null || sellers.isEmpty()){
             sellers = new ArrayList<>();
             sellers.add("mercadona");
-            sellers.add("dia");
+       //     sellers.add("dia");
             sellers.add("consum");
         }
 

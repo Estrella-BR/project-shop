@@ -1,13 +1,13 @@
 import { Component, OnInit, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductService } from './service/product.service';
-import { Product } from './model/Product';
-import { PaginatedResponse } from '../common/model/PaginatedResponse';
-import { ShelfComponent } from './components/shelf-component/shelf-component';
-import { SearchSignComponent } from './components/search-sing-component/search-sing-component';
-import { SpinnerComponent } from './components/spinner-component/spinner.component';
+import { ProductService } from '../service/product.service';
+import { Product } from '../model/Product';
+import { PaginatedResponse } from '../../common/model/PaginatedResponse';
+import { SearchSignComponent } from './components/search-sing/search-sing.component';
+import { ShelfComponent } from './components/shelf/shelf.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
-import { ScreenSizeService } from './service/screen-size.service';
+import { ScreenSizeService } from '../service/screen-size.service';
+import { SpinnerComponent } from './components/spinner/spinner.component';
 
 @Component({
   selector: 'app-product-list',

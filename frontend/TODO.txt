@@ -1,13 +1,13 @@
 
 Hacer el spinner más bonito
 
-Obtener de más supermercados (Consum, Masymas, Family cash)
-
-Hacer algo para agrandar la información del producto
+Obtener de más supermercados  (Masymas, Family cash)
 
 Mirar bien lo de cantidad del producto, ahora no es cantidad es el tipo
+
+subir back
 
 NO CREO POSIBLES: Carrefour, Aldi
 
 
-cambiar el limpiador de imagenes al scraper?
+hacer controller de limpiador de imagenes

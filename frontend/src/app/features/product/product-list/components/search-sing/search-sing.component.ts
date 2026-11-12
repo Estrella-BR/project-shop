@@ -1,7 +1,7 @@
 import { Component, output, signal, OnInit } from '@angular/core';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { Product } from '../../model/Product';
+import { Product } from '../../../model/Product';
 
 export interface SearchFilters {
   minPrice: string;
@@ -17,8 +17,8 @@ export interface SearchFilters {
     MatSelectModule,
     MatFormFieldModule
   ],
-  templateUrl: './search-sing-component.html',
-  styleUrl: './search-sing-component.css',
+  templateUrl: './search-sing.component.html',
+  styleUrl: './search-sing.component.css',
 }) 
 export class SearchSignComponent implements OnInit {
 

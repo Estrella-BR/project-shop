@@ -12,7 +12,7 @@ export const routes: Routes = [
   
   {
     path: 'products',
-    loadComponent: () => import('./features/product/product-list').then(m => m.ProductListComponent),
+    loadComponent: () => import('./features/product/product-list/product-list').then(m => m.ProductListComponent),
   },
   { path: '**', redirectTo: '' },
 ];

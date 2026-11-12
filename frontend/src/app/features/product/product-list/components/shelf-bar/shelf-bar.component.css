@@ -1,4 +1,3 @@
-/* ============ estantería (sin cambios) ============ */
 .shelf-bar {
   min-height: 40px;
   background-color: #9ca3af;
@@ -57,13 +56,12 @@
   outline-offset: 2px;
 }
 
-/* ============ modal ============ */
 .modal-backdrop {
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: grid;
-  place-items: center;          /* crece hacia arriba */
+  place-items: center;        
   padding: 24px;
   background: rgba(17, 24, 39, .65);
   backdrop-filter: blur(2px);
@@ -81,10 +79,9 @@
   animation: pop .18s ease-out;
 }
 
-/* ----- layout: imagen al lado ----- */
 .modal-body {
   display: grid;
-  grid-template-columns: 1fr;       /* móvil: apilado */
+  grid-template-columns: 1fr;       
 }
 
 .modal-image {
@@ -128,10 +125,9 @@
 
 .modal-content {
   padding: 24px;
-  min-width: 0;                      /* permite wrap dentro del grid */
+  min-width: 0;                
 }
 
-/* ----- en desktop: imagen a la izquierda ----- */
 @media (min-width: 720px) {
   .modal-body {
     grid-template-columns: minmax(240px, 40%) 1fr;
@@ -144,7 +140,6 @@
   }
 }
 
-/* ----- cabecera ----- */
 .modal-header {
   padding-bottom: 12px;
   border-bottom: 1px solid #eef0f3;
@@ -156,8 +151,6 @@
   font-size: 1.6rem;
   line-height: 1.25;
   color: #111827;
-
-  /* deshacer truncado heredado de .tag-name */
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
@@ -227,7 +220,6 @@
   border-radius: 2px;
 }
 
-/* ----- botón cerrar ----- */
 .modal-close {
   position: absolute;
   top: 12px;

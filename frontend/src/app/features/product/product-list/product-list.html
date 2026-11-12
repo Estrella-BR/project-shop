@@ -26,12 +26,6 @@
     <div class="shelf-top-container">
       <div class="top-frame">
       </div>
-
-      <div class="brackets">
-        <div class="bracket"></div>
-        <div class="bracket"></div>
-        <div class="bracket"></div>
-      </div>
     </div>
 
     @for (shelf of shelves(); track $index) {
@@ -40,9 +34,9 @@
   </div>
 
    <app-pagination
-  [page]="page()"
-  [totalPages]="totalPages()"
-  (pageChange)="loadPage($event)"
-/>
+      [page]="page()"
+      [totalPages]="totalPages()"
+      (pageChange)="loadPage($event)"
+    />
 
 }
