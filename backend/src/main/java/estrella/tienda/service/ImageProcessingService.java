@@ -23,7 +23,7 @@ public class ImageProcessingService {
             System.getenv().getOrDefault("PYTHON_COMMAND", "python");
 
     public ImageProcessingService() {
-        try {
+       /* try {
             Files.createDirectories(IMAGE_DIRECTORY);
 
             if (!Files.exists(PYTHON_SCRIPT)) {
@@ -36,7 +36,7 @@ public class ImageProcessingService {
             throw new RuntimeException(
                     "Error inicializando el procesamiento de imágenes", e
             );
-        }
+        }*/
     }
 
     public String processImage(String imageUrl) {
