@@ -243,3 +243,10 @@ app-product-component {
 .frame-panel.left { width: 25%; }
 .frame-panel.center { width: 40%; height: 28px; } 
 .frame-panel.right { width: 25%; }
+.loading-hint {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-align: center;
+  font-style: italic;
+}
