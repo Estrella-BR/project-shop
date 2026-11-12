@@ -1,0 +1,46 @@
+.spinner-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(2px);
+    z-index: 9999;
+    display: flex;
+  }
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.spinner {
+  border-style: solid;
+  border-radius: 50%;
+  animation-name: spin;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  box-sizing: border-box;
+}
+
+.spinner-label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

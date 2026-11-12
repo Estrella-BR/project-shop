@@ -5,11 +5,12 @@ import { Product } from './model/Product';
 import { PaginatedResponse } from '../common/model/PaginatedResponse';
 import { ShelfComponent } from './components/shelf-component/shelf-component';
 import { SearchSignComponent } from './components/search-sing-component/search-sing-component';
+import { SpinnerComponent } from './components/spinner-component/spinner.component';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, SearchSignComponent, ShelfComponent],
+  imports: [CommonModule, SearchSignComponent, ShelfComponent, SpinnerComponent],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })

@@ -20,12 +20,11 @@
 }
 
 
-/* Shelf styles */
 .supermarket {
   width: 100%;
   max-width: 3000px;
   margin: 0 auto;
-  background-color: #2c2f3e; /* Fondo oscuro */
+  background-color: #2c2f3e; 
   display: flex;
   flex-direction: column;
   border: 4px solid #111;
@@ -37,7 +36,6 @@
   flex-direction: column;
 }
 
-/* Contenedor de las imágenes */
 .products {
   display: flex;
   align-items: flex-end; 
@@ -47,7 +45,6 @@
   box-sizing: border-box;
 }
 
-/* Tu componente hijo */
 app-product-component {
   display: flex;
   flex-direction: column;
@@ -56,7 +53,6 @@ app-product-component {
   max-width: 120px; 
 }
 
-/* Barra gris */
 .shelf-bar {
   height: 30px;
   background-color: #9ca3af;
@@ -68,7 +64,6 @@ app-product-component {
   padding: 0 10px;
 }
 
-/* Etiqueta roja */
 .price-tag {
   width: 50px;
   height: 20px;
@@ -79,7 +74,6 @@ app-product-component {
   box-sizing: border-box;
 }
 
-/* Rayita blanca de la etiqueta */
 .price-tag::after {
   content: '';
   position: absolute;
@@ -99,7 +93,6 @@ app-product-component {
   margin-top: 50px;
 }
 
-/* --- CONTENEDOR DEL SUPERMERCADO --- */
 .supermarket {
   width: 100%;
   max-width: 1200px;
@@ -114,7 +107,6 @@ app-product-component {
   box-shadow: 8px 8px 0px rgba(0,0,0,0.5);
 }
 
-/* --- MENSAJE VACÍO --- */
 .empty {
   color: white;
   text-align: center;
@@ -124,7 +116,7 @@ app-product-component {
   text-shadow: 2px 2px 0px #1a1a24;
 }
 
-/* --- PAGINACIÓN --- */
+/* --- PAGINATION --- */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -166,7 +158,6 @@ app-product-component {
   opacity: 0.7;
 }
 
-/* --- INDICADOR DE PÁGINA --- */
 .page-indicator {
   background: #f8fafc;
   border: 3px solid #1a1a24;
@@ -193,9 +184,6 @@ app-product-component {
   text-shadow: 1px 1px 0px #1a1a24;
 }
 
-/* ... (Tus estilos anteriores de .supermarket, .empty, .pagination-container, etc.) ... */
-
-/* --- CONTENEDOR DE CARGA --- */
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -206,21 +194,6 @@ app-product-component {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* --- SPINNER ESTILO CARTOON --- */
-.cartoon-spinner {
-  width: 60px;
-  height: 60px;
-  /* Borde negro grueso (base) */
-  border: 6px solid #1a1a24; 
-  /* El borde superior es rojo para que se vea el giro */
-  border-top-color: #ef4444; 
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  /* Sombra dura cartoon */
-  box-shadow: 4px 4px 0px #1a1a24; 
-}
-
-/* --- TEXTO DE CARGA --- */
 .loading-text {
   margin-top: 25px;
   color: white;
@@ -233,51 +206,41 @@ app-product-component {
   animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* --- ANIMACIONES --- */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-
+.shelf-top-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: -4px; 
+  z-index: 5;
+  position: relative;
 }
 
+.top-frame {
+  width: 100%;
+  height: 40px;
+  background-color: #6b7280; 
+  border: 4px solid #1a1a24;
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 20px;
+  box-sizing: border-box;
+  box-shadow: 4px -4px 0px rgba(0,0,0,0.3);
+  position: relative;
+}
 
-    .shelf-top-container {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: -4px; /* Se superpone ligeramente al primer estante */
-      z-index: 5;
-      position: relative;
-    }
+.frame-panel {
+  height: 20px;
+  background-color: #9ca3af; 
+  border: 3px solid #1a1a24;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 4px 0 rgba(255,255,255,0.2); 
+}
 
-    /* --- MARCO SUPERIOR (Techo de la estantería) --- */
-    .top-frame {
-      width: 100%;
-      height: 40px;
-      background-color: #6b7280; /* Gris oscuro del fondo */
-      border: 4px solid #1a1a24; /* Borde negro cartoon */
-      border-bottom: none;
-      border-radius: 12px 12px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding: 0 20px;
-      box-sizing: border-box;
-      box-shadow: 4px -4px 0px rgba(0,0,0,0.3); /* Sombra hacia arriba */
-      position: relative;
-    }
-
-    /* Paneles decorativos en el marco */
-    .frame-panel {
-      height: 20px;
-      background-color: #9ca3af; /* Gris claro */
-      border: 3px solid #1a1a24;
-      border-bottom: none;
-      border-radius: 6px 6px 0 0;
-      box-shadow: inset 0 4px 0 rgba(255,255,255,0.2); /* Brillo superior */
-    }
-
-    .frame-panel.left { width: 25%; }
-    .frame-panel.center { width: 40%; height: 28px; } /* El del centro es más alto */
-    .frame-panel.right { width: 25%; }
+.frame-panel.left { width: 25%; }
+.frame-panel.center { width: 40%; height: 28px; } 
+.frame-panel.right { width: 25%; }
