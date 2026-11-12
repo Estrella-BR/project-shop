@@ -6,11 +6,12 @@ import { PaginatedResponse } from '../common/model/PaginatedResponse';
 import { ShelfComponent } from './components/shelf-component/shelf-component';
 import { SearchSignComponent } from './components/search-sing-component/search-sing-component';
 import { SpinnerComponent } from './components/spinner-component/spinner.component';
+import { PaginationComponent } from './components/pagination/pagination.component';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, SearchSignComponent, ShelfComponent, SpinnerComponent],
+  imports: [CommonModule, SearchSignComponent, ShelfComponent, SpinnerComponent, PaginationComponent],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })
@@ -90,19 +91,11 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
-
-  nextPage(): void {
-    if (this.page() < this.totalPages()) {
-      this.page.update(p => p + 1);
+  
+  loadPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.page.set(page);
       this.getFilteredProducts();
-    }
-  }
-
-  prevPage(): void {
-    if (this.page() > 1) {
-      this.page.update(p => p - 1);
-      this.getFilteredProducts();
-    }
-  }
+    }}
 
 }

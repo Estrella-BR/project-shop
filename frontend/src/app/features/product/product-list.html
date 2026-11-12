@@ -39,18 +39,10 @@
     }
   </div>
 
-  <div class="pagination-container">
-    <button class="cartoon-btn" [disabled]="page() <= 1" (click)="prevPage()">
-      ◀ Anterior
-    </button>
-    <div class="page-indicator">
-      <span class="page-text">Página</span>
-      <span class="page-number">{{ page() }}</span>
-      <span class="page-text">de {{ totalPages() }}</span>
-    </div>
-    <button class="cartoon-btn" [disabled]="page() >= totalPages()" (click)="nextPage()">
-      Siguiente ▶
-    </button>
-  </div>
+   <app-pagination
+  [page]="page()"
+  [totalPages]="totalPages()"
+  (pageChange)="loadPage($event)"
+/>
 
 }

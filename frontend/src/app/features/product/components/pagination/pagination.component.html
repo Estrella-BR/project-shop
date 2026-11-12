@@ -1,0 +1,28 @@
+<div class="pagination-container" role="navigation" aria-label="Paginación">
+  <button
+    type="button"
+    class="cartoon-btn"
+    [disabled]="page() <= 1"
+    (click)="prevPage()"
+    aria-label="Página anterior"
+  >
+    ◀ Anterior
+  </button>
+
+  <div class="page-indicator">
+    <span class="page-text">Página</span>
+    <span class="page-number" aria-current="page">{{ page() }}</span>
+    <span class="page-text">de {{ totalPages() }}</span>
+  </div>
+
+  <button
+    type="button"
+    class="cartoon-btn"
+    [disabled]="page() >= totalPages()"
+    (click)="nextPage()"
+    aria-label="Página siguiente"
+  >
+    Siguiente ▶
+  </button>
+</div>
+
