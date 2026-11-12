@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from './service/product.service';
 import { Product } from './model/Product';
@@ -7,6 +7,7 @@ import { ShelfComponent } from './components/shelf-component/shelf-component';
 import { SearchSignComponent } from './components/search-sing-component/search-sing-component';
 import { SpinnerComponent } from './components/spinner-component/spinner.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
+import { ScreenSizeService } from './service/screen-size.service';
 
 @Component({
   selector: 'app-product-list',
@@ -18,6 +19,9 @@ import { PaginationComponent } from './components/pagination/pagination.componen
 export class ProductListComponent implements OnInit {
 
   productService = inject(ProductService);
+  private screenSizeService = inject(ScreenSizeService);
+
+  screenSize = this.screenSizeService.screenSize;
   
   products = signal<Product[]>([]);
   
@@ -28,7 +32,7 @@ export class ProductListComponent implements OnInit {
   totalPages = signal(1);
   totalElements = signal(0);
   
-  itemPerShelf = signal(4);
+  itemPerShelf = signal(3);
 
   nameFilter = signal<string>('');
   categoryFilter = signal<string>('');
@@ -36,6 +40,7 @@ export class ProductListComponent implements OnInit {
   maxPriceFilter = signal<string>('')
   supermarketFilter = signal<string>('');
   sortByFilter = signal<string>('');
+
 
   shelves = computed(() => {
     const prods = this.products();
@@ -45,6 +50,13 @@ export class ProductListComponent implements OnInit {
     }
     return result;
   });
+
+  constructor() {
+    effect(() => {
+      this.itemPerShelf.set(this.screenSizeService.tagsPerRow());
+    });
+  }
+
 
   ngOnInit(): void {
     this.getFilteredProducts();
@@ -91,7 +103,7 @@ export class ProductListComponent implements OnInit {
       }
     });
   }
-  
+
   loadPage(page: number): void {
     if (page >= 1 && page <= this.totalPages()) {
       this.page.set(page);
