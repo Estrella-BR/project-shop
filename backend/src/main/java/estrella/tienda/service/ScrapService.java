@@ -1,6 +1,8 @@
 
 package estrella.tienda.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import estrella.tienda.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.nio.file.Paths;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ScrapService {
@@ -32,6 +35,9 @@ public class ScrapService {
 
     @Autowired
     private DiaScrapService diaScrapService;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
 
     public List<Product> getAllBooks() throws IOException {
@@ -68,17 +74,26 @@ public class ScrapService {
     ) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
-
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        Path directorio = Paths.get("data", "files");
+        byte[] jsonBytes = mapper.writeValueAsBytes(productos);
 
-        Files.createDirectories(directorio);
+        Map uploadResult = cloudinary.uploader().upload(
+                jsonBytes,
+                ObjectUtils.asMap(
+                        "resource_type", "raw",
+                        "public_id", fileName,
+                        "folder", "Shop/files"
+                )
+        );
 
-        Path archivo = directorio.resolve(fileName + ".json");
-
-        mapper.writeValue(archivo.toFile(), productos);
+         Path directorio = Paths.get("data", "files");
+         Files.createDirectories(directorio);
+         Path archivo = directorio.resolve(fileName + ".json");
+         mapper.writeValue(archivo.toFile(), productos);
     }
+
+
 
     public List<Product> getMercadonaProducts(Boolean cleanImg)throws IOException{
         List<Product> products = new ArrayList<>();

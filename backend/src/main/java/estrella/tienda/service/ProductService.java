@@ -1,21 +1,20 @@
 package estrella.tienda.service;
 
+import com.cloudinary.Cloudinary;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import estrella.tienda.common.PaginatedResponse;
 import estrella.tienda.model.Product;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import org.aspectj.weaver.ast.Literal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -24,38 +23,62 @@ public class ProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private Cloudinary cloudinary;
+
     private List<Product> products;
 
-    private static final Path FILES_DIR =
-            Paths.get("data", "files");
+    private static final String CLOUDINARY_FOLDER = "Shop/files";
 
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     private synchronized void cargarProductos(List<String> sellers) throws IOException {
 
         products = new ArrayList<>();
 
-        if (!Files.exists(FILES_DIR)) {
-            throw new IOException(
-                    "No se encuentra el archivo: " +
-                            FILES_DIR.toAbsolutePath()
+        if (sellers == null || sellers.isEmpty()) {
+            sellers = List.of("mercadona", "dia", "consum");
+        }
+
+        for (String seller : sellers) {
+            products.addAll(leerProductosDesdeCloudinary(seller));
+        }
+    }
+
+    private List<Product> leerProductosDesdeCloudinary(String seller) throws IOException {
+
+        String publicId = CLOUDINARY_FOLDER + "/" + seller;
+
+        String url = cloudinary.url()
+                .resourceType("raw")
+                .secure(true)
+                .generate(publicId);
+
+        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<byte[]> response = HTTP_CLIENT.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofByteArray()
             );
-        }
 
-        //If we don't expecify one we read all
-        if( sellers == null || sellers.isEmpty()){
-            sellers = new ArrayList<>();
-            sellers.add("mercadona");
-            sellers.add("dia");
-            sellers.add("consum");
-        }
+            if (response.statusCode() != 200) {
+                throw new IOException(
+                        "No se pudo descargar " + publicId +
+                                " desde Cloudinary. HTTP " + response.statusCode()
+                );
+            }
 
-        for(String seller: sellers){
-            Path filePath = Paths.get("data", "files", seller + ".json");
-
-            products.addAll(objectMapper.readValue(
-                    filePath.toFile(),
+            return objectMapper.readValue(
+                    response.body(),
                     new TypeReference<List<Product>>() {}
-            ));
+            );
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Descarga interrumpida: " + publicId, e);
         }
     }
 
@@ -78,10 +101,7 @@ public class ProductService {
 
         cargarProductos(new ArrayList<>());
 
-        PaginatedResponse<Product> respuesta =
-                PaginatedResponse.of(products, page, size);
-
-        return respuesta;
+        return PaginatedResponse.of(products, page, size);
     }
 
     public PaginatedResponse<Product> getProductsFiltered(
@@ -109,7 +129,6 @@ public class ProductService {
 
         cargarProductos(sellers);
 
-        // Filters
         List<Product> productosFiltrados = products.stream()
 
                 .filter(product -> name == null || name.isBlank()
@@ -156,11 +175,7 @@ public class ProductService {
             );
         }
 
-        // Paginar resultados después de ordenar
-        PaginatedResponse<Product> respuesta =
-                PaginatedResponse.of(productosFiltrados, page, size);
-
-        return respuesta;
+        return PaginatedResponse.of(productosFiltrados, page, size);
     }
 
     private double obtenerPrecio(String precio) {
@@ -185,17 +200,10 @@ public class ProductService {
     }
 
     public List<Product> getBySeller(String sellerId) throws IOException {
-
-        Path file = FILES_DIR.resolve(sellerId + ".json");
-
-        if (!Files.exists(file)) {
+        try {
+            return leerProductosDesdeCloudinary(sellerId);
+        } catch (IOException e) {
             return List.of();
         }
-
-        return objectMapper.readValue(
-                file.toFile(),
-                new TypeReference<List<Product>>() {}
-        );
     }
-
 }
