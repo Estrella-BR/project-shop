@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+//It does not work on
 @Service
 public class DiaScrapService {
 
@@ -40,7 +42,7 @@ public class DiaScrapService {
 
             Browser browser = playwright.chromium().launch(
                     new BrowserType.LaunchOptions()
-                            .setHeadless(false)
+                            .setHeadless(true)
                             .setChannel("chrome")
                             .setArgs(List.of("--disable-blink-features=AutomationControlled"))
             );
