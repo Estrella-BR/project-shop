@@ -5,7 +5,7 @@ public class Product {
     private String id;
     private String name;
     private String price;
-    private String cuantity;
+    private String quantity;
     private String image;
     private String cleanImage;
     private String url;
@@ -17,13 +17,13 @@ public class Product {
     public Product(
             String name,
             String price,
-            String cuantity,
+            String quantity,
             String image,
             String url,
             String seller) {
         this.name = name;
         this.price = price;
-        this.cuantity = cuantity;
+        this.quantity = quantity;
         this.image = image;
         this.cleanImage = null;
         this.url = url;
@@ -38,8 +38,8 @@ public class Product {
         return price;
     }
 
-    public String getCuantity() {
-        return cuantity;
+    public String getQuantity() {
+        return quantity;
     }
 
     public String getImage() {
@@ -58,8 +58,8 @@ public class Product {
         this.price = price;
     }
 
-    public void setCuantity(String cuantity) {
-        this.cuantity = cuantity;
+    public void setQuantity(String quantity) {
+        this.quantity = quantity;
     }
 
     public void setImage(String image) {
@@ -96,7 +96,7 @@ public class Product {
 
 
     public String createImgName(){
-        return name + "_" + cuantity + "_" + seller;
+        return name + "_" + quantity + "_" + seller;
     }
 
     public void generateId() {
@@ -104,7 +104,7 @@ public class Product {
             this.id = seller.toLowerCase() + ":" + Integer.toHexString(url.hashCode());
         }else{
         this.id = seller.toLowerCase() + ":"
-                + Integer.toHexString((name + "|" + cuantity).hashCode());
+                + Integer.toHexString((name + "|" + quantity).hashCode());
         }
     }
 }

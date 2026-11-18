@@ -143,8 +143,8 @@ public class ProductService {
                         obtenerPrecio(product.getPrice()) <= maxPrice)
 
                 .filter(product -> quantity == null || quantity.isBlank()
-                        || (product.getCuantity() != null &&
-                        product.getCuantity().toLowerCase()
+                        || (product.getQuantity() != null &&
+                        product.getQuantity().toLowerCase()
                                 .contains(quantity.trim().toLowerCase())))
 
                 .collect(java.util.stream.Collectors.toCollection(

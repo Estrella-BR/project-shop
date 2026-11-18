@@ -6,7 +6,7 @@ import { PaginatedResponse } from '../../common/model/PaginatedResponse';
 import { SearchSignComponent } from './components/search-sing/search-sing.component';
 import { ShelfComponent } from './components/shelf/shelf.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
-import { ScreenSizeService } from '../service/screen-size.service';
+import { ScreenSizeService } from '../../common/services/screen-size.service';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 
 @Component({

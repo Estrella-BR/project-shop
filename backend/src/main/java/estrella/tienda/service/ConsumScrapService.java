@@ -107,7 +107,7 @@ public class ConsumScrapService {
         String price = node.path("priceData").path("prices").path(0).path("value").path("centAmount").asText();
         String description = node.path("productData").path("description").asText(null);
 
-        p.setCuantity(this.getQuantity(description));
+        p.setQuantity(this.getQuantity(description));
         p.setPrice(this.cleanPrice(price));
         p.setSeller("Consum");
         p.generateId();
