@@ -3,10 +3,9 @@ package estrella.tienda.model;
 public class ShoppingItem {
     
     private Product product;
-    private String ingredient;
-    private String requiredQuantity;
-    private int packages;
     private double totalPrice;
+    private double unitaryPrice;
+    private int id;
 
     public Product getProduct() {
         return product;
@@ -16,35 +15,27 @@ public class ShoppingItem {
         this.product = product;
     }
 
-    public String getIngredient() {
-        return ingredient;
-    }
-
-    public void setIngredient(String ingredient) {
-        this.ingredient = ingredient;
-    }
-
-    public String getRequiredQuantity() {
-        return requiredQuantity;
-    }
-
-    public void setRequiredQuantity(String requiredQuantity) {
-        this.requiredQuantity = requiredQuantity;
-    }
-
-    public int getPackages() {
-        return packages;
-    }
-
-    public void setPackages(int packages) {
-        this.packages = packages;
-    }
-
     public double getTotalPrice() {
         return totalPrice;
     }
 
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public double getUnitaryPrice() {
+        return unitaryPrice;
+    }
+
+    public void setUnitaryPrice(double unitaryPrice) {
+        this.unitaryPrice = unitaryPrice;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
