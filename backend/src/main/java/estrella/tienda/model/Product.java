@@ -1,5 +1,7 @@
 package estrella.tienda.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class Product {
 
     private String id;
@@ -58,6 +60,8 @@ public class Product {
         this.price = price;
     }
 
+
+    @JsonAlias("cuantity")
     public void setQuantity(String quantity) {
         this.quantity = quantity;
     }
