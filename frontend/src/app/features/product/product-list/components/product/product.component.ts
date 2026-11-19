@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Product } from '../../../model/Product';
+import { Product } from '../../../../common/model/Product';
+import { CartService } from '../../../../cart/service/cart.service';
 @Component({
   selector: 'app-product-component',
   standalone: true,
@@ -13,6 +14,8 @@ import { Product } from '../../../model/Product';
 export class ProductComponent implements OnInit {
     @Input() product: Product | null = null;
 
+    cartService = inject(CartService);
+
     ngOnInit(): void {
     }
 
@@ -22,6 +25,12 @@ export class ProductComponent implements OnInit {
       }
 
       return `http://localhost:8080${image}`;
+  }
+  
+  addToCart(): void {
+    if(this.product != null){
+      this.cartService.addToCart(this.product);
+    }
   }
 
 }

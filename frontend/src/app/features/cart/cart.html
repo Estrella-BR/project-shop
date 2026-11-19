@@ -1,0 +1,64 @@
+<main class="cart-container">
+
+  <header class="cart-header">
+
+    <div class="header-titles">
+      <h1>Lista</h1>
+      <p class="cart-count">
+        <span class="count-badge">{{ totalQuantity() }}</span>
+        {{ totalQuantity() === 1 ? 'producto' : 'productos' }} en la lista
+      </p>
+    </div>
+
+    @if (list().length > 0) {
+      <button
+        type="button"
+        class="clear-all-button"
+        [class.confirming]="confirmingClear()"
+        (click)="requestClear()"
+        [attr.aria-label]="confirmingClear()
+          ? 'Confirm: delete all items'
+          : 'Delete all items from the cart'"
+      >
+        @if (confirmingClear()) {
+          <span class="clear-label">Click para confirmar</span>
+        } @else {
+          <span class="clear-icon" aria-hidden="true">🗑</span>
+          <span class="clear-label">Vaciar todo</span>
+        }
+      </button>
+    }
+
+  </header>
+
+  @if (list().length > 0) {
+
+    <section class="cart-products" aria-label="Products in your cart">
+
+      @for (item of list(); track item.product.url) {
+
+        <app-cart-item
+          [item]="item"
+          (increase)="increaseQuantity(item.product)"
+          (decrease)="decreaseQuantity(item.product)"
+          (remove)="removeFromCart(item.product)"
+        />
+
+      }
+
+    </section>
+
+  } @else {
+
+    <section class="empty-cart">
+
+      <div class="empty-icon" aria-hidden="true">🛒</div>
+
+      <h2>La lista está vacia</h2>
+      <p>Aún no has añadido nada</p>
+
+    </section>
+
+  }
+
+</main>

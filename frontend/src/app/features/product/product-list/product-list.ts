@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../service/product.service';
-import { Product } from '../model/Product';
+import { Product } from '../../common/model/Product';
 import { PaginatedResponse } from '../../common/model/PaginatedResponse';
 import { SearchSignComponent } from './components/search-sing/search-sing.component';
 import { ShelfComponent } from './components/shelf/shelf.component';

@@ -1,6 +1,6 @@
 import { Component, HostListener, Input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Product } from '../../../model/Product'; // Ajusta la ruta
+import { Product } from '../../../../common/model/Product'; // Ajusta la ruta
 
 @Component({
   selector: 'app-shelf-bar',

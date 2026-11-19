@@ -1,0 +1,88 @@
+<article class="cart-item" [class.purchased]="purchased()">
+
+  <!-- Checkbox -->
+  <button
+    type="button"
+    class="check-indicator"
+    [class.checked]="purchased()"
+    (click)="togglePurchased()"
+    [attr.aria-pressed]="purchased()"
+    [attr.aria-label]="(purchased() ? 'Mark ' : 'Mark ') + item().product.name + (purchased() ? ' as not purchased' : ' as purchased')"
+  >
+    @if (purchased()) {
+      <span aria-hidden="true">✓</span>
+    }
+  </button>
+
+  <!-- Thumbnail -->
+  <div class="product-image">
+    <img
+      [src]="item().product.cleanImage || item().product.image"
+      [alt]="item().product.name"
+      loading="lazy"
+    />
+  </div>
+
+  <div class="product-info">
+
+    <h3 class="product-name">{{ item().product.name }}</h3>
+
+    <div class="product-meta">
+      @if (item().product.seller) {
+        <span class="seller">{{ item().product.seller }}</span>
+      }
+      @if (item().product.quantity) {
+        <span class="pack">{{ item().product.quantity }}</span>
+      }
+      @if (item().product.url) {
+        <a
+          class="product-link"
+          [href]="item().product.url"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Ver producto ↗</a>
+      }
+    </div>
+
+    <div class="purchase-row">
+
+      <span class="unit-price">{{ item().product.price }} € / unit</span>
+
+      <div class="quantity-controls">
+        <button
+          type="button"
+          (click)="decrease.emit()"
+          [disabled]="item().quantity <= 1"
+          aria-label="Decrease quantity"
+        >−</button>
+
+        <span class="qty" aria-live="polite">{{ item().quantity }}</span>
+
+        <button
+          type="button"
+          (click)="increase.emit()"
+          aria-label="Increase quantity"
+        >+</button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="product-total">
+
+    <div class="total-amount">
+      <strong>{{ item().totalPrice.toFixed(2) }} €</strong>
+      <span class="total-caption">total</span>
+    </div>
+
+    <button
+      type="button"
+      class="remove-button"
+      (click)="remove.emit()"
+      [attr.aria-label]="'Remove ' + item().product.name"
+    >×</button>
+
+  </div>
+
+</article>

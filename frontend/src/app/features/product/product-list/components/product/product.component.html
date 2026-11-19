@@ -1,4 +1,4 @@
-<div class="product-card">
+<div class="product-card" (click)="addToCart()">
     @if (product?.cleanImage) {
         <img [src]="getImageUrl(product.cleanImage)"
         [alt]="product.name">

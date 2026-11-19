@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Product } from '../../../model/Product'; 
+import { Product } from '../../../../common/model/Product'; 
 import { ProductComponent } from '../product/product.component';
 import { ShelfBarComponent } from '../shelf-bar/shelf-bar.component';
 @Component({

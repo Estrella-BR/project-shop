@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
-import { Product } from '../model/Product';
+import { Product } from '../../common/model/Product';
 import { PaginatedResponse } from '../../common/model/PaginatedResponse';
 
 type CatalogProductResponse = Omit<Product, 'quantity'> & { cuantity: string };
