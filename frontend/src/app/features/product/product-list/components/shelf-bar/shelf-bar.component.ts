@@ -32,7 +32,6 @@ export class ShelfBarComponent {
   }
 
   addToCart(p: Product, index: number) {
-    event?.stopPropagation();
     this.cartService.addToCart(p)
 
     this.recentlyAddedIndex.set(index);

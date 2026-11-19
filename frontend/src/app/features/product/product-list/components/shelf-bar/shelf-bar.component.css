@@ -23,7 +23,6 @@
 /* Fondo oscuro para la imagen */
 .shelf-image-bg {
   background-color: #343a40; /* Color gris oscuro de la imagen */
-  height: 300px; 
   display: flex;
   justify-content: center;
   align-items: flex-end; 
@@ -35,7 +34,7 @@
 .shelf-image-bg img {
   max-height: 100%;
   max-width: 100%;
-  object-fit: contain;
+  object-fit: scale-down;
 }
 
 /* Sección de información (blanca) */
@@ -99,15 +98,16 @@
   transition: all 0.2s ease;
   font-family: sans-serif;
   margin-right: 0.5rem;
+
 }
 
-.tag-add:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
-}
+.shelf-bottom-row button:hover{
+  background-color: #fbf9f9;
+  border-color: #c40135;
 
-.tag-add.added {
-  background-color: #e8f5e9;
+  }
+.shelf-bottom-row .tag-add.added {
+  background-color: #ffffff;
   border-color: #4caf50;
   color: #2e7d32;
 }

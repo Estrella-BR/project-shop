@@ -20,11 +20,7 @@
                   class="tag-add"
                   [class.added]="recentlyAddedIndex() === $index"
                   (click)="addToCart(product, $index)">
-                  @if (recentlyAddedIndex() === $index) {
-                    <span aria-hidden="true">✓</span> Añadido
-                  } @else {
-                    Añadir <span class="plus-icon" aria-hidden="true">+</span>
-                  }                
+                    Añadir <span class="plus-icon" aria-hidden="true">+</span>  
                 </button>
                 <button  type="button" (click)="open(product)">
                   Info
