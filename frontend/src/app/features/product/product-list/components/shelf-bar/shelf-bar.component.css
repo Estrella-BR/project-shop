@@ -85,7 +85,7 @@
 }
 
 /* Botón de Añadir */
-.tag-add {
+.shelf-bottom-row button{
   background-color: #fff;
   border: 1px solid #d1d5db;
   border-radius: 4px;
@@ -98,6 +98,7 @@
   gap: 8px;
   transition: all 0.2s ease;
   font-family: sans-serif;
+  margin-right: 0.5rem;
 }
 
 .tag-add:hover {
