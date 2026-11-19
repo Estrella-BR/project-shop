@@ -1,20 +1,45 @@
 <!-- estantería -->
 <div class="shelf-bar">
   @for (product of products; track $index) {
-    <button
-      type="button"
-      class="price-tag"
-      (click)="open(product)"
-      [attr.aria-label]="'Ver detalles de ' + product.name">
-      <span class="tag-name">{{ product.name }}</span>
-      <span class="tag-price">{{ product.price }} €</span>
-      <span class="tag-qty">Cant: {{ product.quantity }}</span>
-      <span class="tag-seller">Vendedor: {{ product.seller }}</span>
-    </button>
+    <div class="shelf-div">
+      
+      <div class="shelf-image-bg">
+          <app-product-component [product]="product"></app-product-component>
+      </div>
+
+      <div class="shelf-info">
+        <div class="shelf-tag">
+          <span class="tag-name">{{ product.name }}</span>
+          
+          <div class="shelf-bottom-row">
+            <span class="tag-price">{{ product.price }} €</span>
+
+            <div class="tag-actions">
+                <button
+                  type="button"
+                  class="tag-add"
+                  [class.added]="recentlyAddedIndex() === $index"
+                  (click)="addToCart(product, $index)">
+                  @if (recentlyAddedIndex() === $index) {
+                    <span aria-hidden="true">✓</span> Añadido
+                  } @else {
+                    Añadir <span class="plus-icon" aria-hidden="true">+</span>
+                  }                
+                </button>
+                <button  type="button" (click)="open(product)">
+                  Info
+                </button>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   }
 </div>
 
-<!-- modal -->
+<!-- modal (Mantenlo igual, solo asegúrate de que esté debajo) -->
 @if (selected(); as p) {
   <div class="modal-backdrop" (click)="close()">
     <div

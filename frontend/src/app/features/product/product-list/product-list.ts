@@ -32,7 +32,7 @@ export class ProductListComponent implements OnInit {
   totalPages = signal(1);
   totalElements = signal(0);
   
-  itemPerShelf = signal(3);
+  itemPerShelf = signal(4);
 
   nameFilter = signal<string>('');
   categoryFilter = signal<string>('');
