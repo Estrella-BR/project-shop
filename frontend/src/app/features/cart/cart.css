@@ -123,6 +123,68 @@
   display: block;
 }
 
+/* ---------- Total / footer ---------- */
+
+.cart-footer {
+  margin-top: 16px;
+  padding: 22px;
+  background: #fffdf5;
+  border: 1px solid #eee9dc;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(60, 50, 20, 0.04),
+    0 10px 28px rgba(60, 50, 20, 0.06);
+}
+
+.total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.total-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #99927e;
+}
+
+.total-amount {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #2e2b22;
+  font-variant-numeric: tabular-nums;
+}
+
+.checkout-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 999px;
+  background: #6f8f5d;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.checkout-button:hover {
+  background: #5f7d4e;
+}
+
+.checkout-button:active {
+  transform: scale(0.98);
+}
+
 /* ---------- Empty state ---------- */
 
 .empty-cart {
@@ -159,7 +221,8 @@
 
 /* ---------- Focus ---------- */
 
-.clear-all-button:focus-visible {
+.clear-all-button:focus-visible,
+.checkout-button:focus-visible {
   outline: 2px solid #6f8f5d;
   outline-offset: 2px;
 }
@@ -177,5 +240,18 @@
 
   .clear-all-button {
     padding: 8px 14px;
+  }
+
+  .cart-footer {
+    padding: 16px;
+  }
+
+  .total-amount {
+    font-size: 22px;
+  }
+
+  .checkout-button {
+    padding: 12px 18px;
+    font-size: 14px;
   }
 }

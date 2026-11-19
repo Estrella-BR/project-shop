@@ -3,7 +3,6 @@
   <header class="cart-header">
 
     <div class="header-titles">
-      <h1>Lista</h1>
       <p class="cart-count">
         <span class="count-badge">{{ totalQuantity() }}</span>
         {{ totalQuantity() === 1 ? 'producto' : 'productos' }} en la lista
@@ -47,6 +46,18 @@
       }
 
     </section>
+    <!-- ✅ TOTAL DE TODOS LOS PRODUCTOS -->
+    <footer class="cart-footer" aria-label="Cart summary">
+
+      <div class="total-row">
+        <span class="total-label">Total</span>
+        <span class="total-amount">
+          {{ totalPrice() }} €        
+        </span>
+      </div>
+
+
+    </footer>
 
   } @else {
 
