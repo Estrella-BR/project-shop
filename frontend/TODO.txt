@@ -7,3 +7,6 @@ NO CREO POSIBLES: Carrefour, Aldi
 hacer controller de limpiador de imagenes
 Hacer que le de igual tildes
 mejorar la busqueda
+
+ejecutar chat.py 
+adaptar posibles cambios por mover el codigo 
