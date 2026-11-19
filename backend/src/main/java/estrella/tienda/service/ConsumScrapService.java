@@ -124,13 +124,13 @@ public class ConsumScrapService {
         Pattern pattern = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*(Gr|gr|g|G|Kg|kg|Ml|ml|L|l)\\b");
         Matcher matcher = pattern.matcher(description);
 
-        String cuantiy = "";
+        String quantity = "";
 
         if (matcher.find()) {
-            cuantiy = matcher.group(0);
+            quantity = matcher.group(0);
         }
 
-        return cuantiy;
+        return quantity;
     }
 
     private List<String> getCategories(){
