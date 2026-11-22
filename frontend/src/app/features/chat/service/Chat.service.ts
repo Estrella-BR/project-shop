@@ -13,7 +13,7 @@ export class AiChatService {
   private apiUrl = environment.apiUrl;
 
   sendMessage(message: string): Observable<string> {
-    return this.http.get(this.apiUrl, {
+    return this.http.get(this.apiUrl + "/chat", {
       params: { question: message },
       responseType: 'text' as 'json'   // backend returns a plain String, not JSON
     }) as Observable<string>;
