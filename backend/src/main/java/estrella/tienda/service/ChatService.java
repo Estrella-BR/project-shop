@@ -34,9 +34,9 @@ public class ChatService {
             @Value("${app.python.command:python}") String command,
             @Value("${app.python.chat-timeout-seconds:120}") long timeoutSeconds
     ) {
-        this.pythonScript = Path.of(
-                "C:\\Users\\Estrella\\Codigo\\Shop\\Ia\\chat.py"
-        ).toAbsolutePath().normalize();
+        this.pythonScript = Path.of("..", "Ia", "chat.py")
+                .toAbsolutePath()
+                .normalize();
         this.pythonCommand = command;
         this.timeoutSeconds = timeoutSeconds;
     }
