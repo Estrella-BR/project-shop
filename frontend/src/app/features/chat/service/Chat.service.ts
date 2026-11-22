@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,12 +10,12 @@ export class AiChatService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'http://localhost:8080/api/ai/chat';
+  private apiUrl = environment.apiUrl;
 
-  sendMessage(message: string): Observable<{ response: string }> {
-    return this.http.post<{ response: string }>(
-      this.apiUrl,
-      { message }
-    );
+  sendMessage(message: string): Observable<string> {
+    return this.http.get(this.apiUrl, {
+      params: { question: message },
+      responseType: 'text' as 'json'   // backend returns a plain String, not JSON
+    }) as Observable<string>;
   }
 }
