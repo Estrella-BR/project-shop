@@ -1,13 +1,13 @@
-
 import os
 import sys
 import json
 import argparse
 from pathlib import Path
-
+import time
 import ollama
 import chromadb
 
+from resource_tracker import ResourceTracker
 
 # ==========================================================
 # CONFIGURACION
@@ -21,8 +21,8 @@ CHROMA_DIR = BASE_DIR / "chroma_db_rag"
 PERSONALITY_PATH = BASE_DIR / "config" / "personality.txt"
 HISTORY_PATH = BASE_DIR / "conversations" / "history.json"
 
-CHAT_MODEL = "qwen2.5"
-EMBED_MODEL = "nomic-embed-text"
+CHAT_MODEL = "qwen2.5:0.5b"
+EMBED_MODEL = "all-minilm"
 
 COLLECTION_NAME = "productos_mercadona"
 
@@ -76,6 +76,7 @@ def load_products():
 
     return products
 
+
 def get_collection():
     client = chromadb.PersistentClient(
         path=str(CHROMA_DIR)
@@ -91,6 +92,8 @@ def get_collection():
     print(f"Productos indexados: {collection.count()}")
 
     return collection
+
+
 def safe_value(value, default=""):
     """Convierte valores a texto de forma segura."""
 
@@ -180,7 +183,7 @@ def create_metadata(product):
 # INDEXACION RAG
 # ==========================================================
 
-def build_index(force=False):
+def build_index(force=False, tracker: ResourceTracker | None = None):
     """
     Construye el índice vectorial de productos.
 
@@ -231,9 +234,14 @@ def build_index(force=False):
             product_id = f"{original_id}-{index}"
 
         used_ids.add(product_id)
-
         text = product_to_text(product)
+        t0 = time.perf_counter()
+        embedding_response = ollama.embed(model=EMBED_MODEL, input=text)
+        elapsed = time.perf_counter() - t0
 
+        if tracker:
+            tracker.track_embed(text, elapsed_s=elapsed)
+            
         embedding_response = ollama.embed(
             model=EMBED_MODEL,
             input=text
@@ -259,48 +267,43 @@ def build_index(force=False):
 # ==========================================================
 # BUSQUEDA DE PRODUCTOS
 # ==========================================================
-
-def search_products(question, top_k=5):
-    """Busca los productos más relacionados con una pregunta."""
-
+def search_products(question, top_k=5, tracker: ResourceTracker | None = None):
     collection = get_collection()
-
     total = collection.count()
-
     if total == 0:
         return []
 
-    embedding_response = ollama.embed(
-        model=EMBED_MODEL,
-        input=question
-    )
+    t0 = time.perf_counter()
+    embedding_response = ollama.embed(model=EMBED_MODEL, input=question)
+    embed_elapsed = time.perf_counter() - t0
+
+    if tracker:
+        tracker.track_embed(question, elapsed_s=embed_elapsed)
 
     embedding = embedding_response["embeddings"][0]
 
+    t1 = time.perf_counter()
     results = collection.query(
         query_embeddings=[embedding],
         n_results=min(top_k, total),
-        include=["documents", "metadatas", "distances"]
+        include=["documents", "metadatas", "distances"],
     )
+    rag_elapsed = time.perf_counter() - t1
 
     documents = results["documents"][0] or []
     metadatas = results["metadatas"][0] or []
     distances = results["distances"][0] or []
 
-    return [
-        {
-            "texto": document,
-            "metadatos": metadata,
-            "distancia": distance
-        }
-        for document, metadata, distance in zip(
-            documents,
-            metadatas,
-            distances
-        )
-        if document is not None
+    parsed = [
+        {"texto": d, "metadatos": m, "distancia": dist}
+        for d, m, dist in zip(documents, metadatas, distances)
+        if d is not None
     ]
 
+    if tracker:
+        tracker.track_rag(top_k, parsed, elapsed_s=rag_elapsed)
+
+    return parsed
 
 def build_product_context(results):
     """Construye el contexto que recibirá el modelo."""
@@ -440,67 +443,45 @@ sobre un producto, debes reconocerlo.
 # ==========================================================
 # CHAT CON OLLAMA
 # ==========================================================
-
-def send_question(question, history, top_k=5):
+def send_question(question, history, top_k=5, tracker: ResourceTracker | None = None):
     """Envía una pregunta a Ollama utilizando RAG y memoria."""
 
-    # Preparar búsqueda teniendo en cuenta la conversación
     search_query = build_search_query(question, history)
 
-    # Recuperar productos
     results = search_products(
         search_query,
-        top_k=top_k
+        top_k=top_k,
+        tracker=tracker
     )
 
-    # Construir contexto
     context = build_product_context(results)
-
-    # Construir instrucciones
     system_prompt = build_system_prompt(context)
 
-    # Preparar mensajes
-    messages = [
-        {
-            "role": "system",
-            "content": system_prompt
-        }
-    ]
-
+    messages = [{"role": "system", "content": system_prompt}]
     messages.extend(history[-MAX_HISTORY_MESSAGES:])
+    messages.append({"role": "user", "content": question})
 
-    messages.append({
-        "role": "user",
-        "content": question
-    })
-
-    # Consultar modelo
+    # ⏱️ Medir la llamada a ollama.chat
+    t0 = time.perf_counter()
     response = ollama.chat(
         model=CHAT_MODEL,
         messages=messages,
         stream=False
     )
+    chat_elapsed = time.perf_counter() - t0
 
     answer = response["message"]["content"]
 
-    # Actualizar historial
-    history.append({
-        "role": "user",
-        "content": question
-    })
+    # ✅ Pasamos el OBJETO response completo + tiempo de pared
+    if tracker:
+        tracker.track_chat(response, wall_time_s=chat_elapsed)
 
-    history.append({
-        "role": "assistant",
-        "content": answer
-    })
-
-    # Limitar historial
+    history.append({"role": "user", "content": question})
+    history.append({"role": "assistant", "content": answer})
     history[:] = history[-MAX_HISTORY_MESSAGES:]
-
     save_history(history)
 
     return answer
-
 # ==========================================================
 # MAIN
 # ==========================================================
@@ -536,7 +517,18 @@ def main():
         help="Borra el historial de conversación"
     )
 
+    parser.add_argument(
+        "--show-resources",
+        action="store_true",
+        help="Muestra el informe de recursos al finalizar"
+    )
+
     args = parser.parse_args()
+
+    tracker = ResourceTracker(
+        chroma_dir=CHROMA_DIR,
+        history_path=HISTORY_PATH,
+    )
 
     try:
 
@@ -546,10 +538,11 @@ def main():
         create_directories()
 
         if args.clear_history:
+
             clear_history()
 
         # Comprobar o construir índice
-        build_index(force=args.reindex)
+        build_index(force=args.reindex, tracker=tracker)
 
         # Modo pregunta individual
         if args.question:
@@ -559,16 +552,24 @@ def main():
             answer = send_question(
                 args.question,
                 history,
-                top_k=args.top_k
+                top_k=args.top_k,
+                tracker=tracker
             )
 
             print(json.dumps({
                 "ok": True,
-                "answer": answer
-            }, ensure_ascii=False))
+                "answer": answer,
+                "recursos": tracker.report()
+            }, ensure_ascii=False, indent=4))
+
+            if args.show_resources:
+                tracker.print_report()
 
             return 0
 
+        # Si no hay pregunta pero se pide informe de recursos
+        if args.show_resources:
+            tracker.print_report()
 
         return 0
 
@@ -576,12 +577,15 @@ def main():
 
         print(json.dumps({
             "ok": False,
-            "error": str(error)
-        }, ensure_ascii=False))
+            "error": str(error),
+            "recursos": tracker.report()
+        }, ensure_ascii=False, indent=4))
 
         return 1
+        
+    finally:
+        tracker.stop()
 
 
 if __name__ == "__main__":
     sys.exit(main())
-
