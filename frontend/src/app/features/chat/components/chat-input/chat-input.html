@@ -1,0 +1,19 @@
+<div class="input-container">
+
+  <textarea
+    placeholder="Escribe tu mensaje..."
+    [value]="message()"
+    [disabled]="disabled()"
+    (input)="message.set($any($event.target).value)"
+    (keydown)="onKeydown($event)"
+    rows="1">
+  </textarea>
+
+  <button
+    (click)="submit()"
+    [disabled]="!message().trim() || disabled()"
+    aria-label="Enviar mensaje">
+    ↑
+  </button>
+
+</div>

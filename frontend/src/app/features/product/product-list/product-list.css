@@ -250,3 +250,10 @@ app-product-component {
   text-align: center;
   font-style: italic;
 }
+
+.recipes-page {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 20px;
+  height: 700px;
+}

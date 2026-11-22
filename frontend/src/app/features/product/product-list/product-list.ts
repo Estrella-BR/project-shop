@@ -8,11 +8,19 @@ import { ShelfComponent } from './components/shelf/shelf.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
 import { ScreenSizeService } from '../../common/services/screen-size.service';
 import { SpinnerComponent } from './components/spinner/spinner.component';
+import { ChatComponent } from '../../chat/chat';
 
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, SearchSignComponent, ShelfComponent, SpinnerComponent, PaginationComponent],
+  imports: [
+    CommonModule, 
+    SearchSignComponent, 
+    ShelfComponent, 
+    SpinnerComponent, 
+    PaginationComponent,
+    ChatComponent,
+  ],
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })
@@ -20,6 +28,7 @@ export class ProductListComponent implements OnInit {
 
   productService = inject(ProductService);
   private screenSizeService = inject(ScreenSizeService);
+
 
   screenSize = this.screenSizeService.screenSize;
   

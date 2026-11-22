@@ -1,0 +1,43 @@
+<div class="chat-container">
+
+  <header class="chat-header">
+    <div class="assistant-avatar">✦</div>
+
+    <div class="header-info">
+      <h2>Asistente Tienda</h2>
+      <span><i></i> Tu ayudante de compra</span>
+    </div>
+
+    <button class="clear-button"
+            (click)="messages.set([])"
+            title="Limpiar conversación">
+      ↻
+    </button>
+  </header>
+
+  <main class="chat-messages">
+
+    @if (messages().length === 0) {
+      <div class="empty-chat">
+        <span>✦</span>
+        <h3>¿Qué necesitas hoy?</h3>
+        <p>Pregúntame por productos, precios o recetas.</p>
+      </div>
+    }
+
+    @for (message of messages(); track message.id) {
+      <app-chat-message [message]="message" />
+    }
+
+  </main>
+
+  <footer class="chat-footer">
+    <app-chat-input
+      [disabled]="loading()"
+      (send)="sendMessage($event)"
+    />
+
+    <p>La IA puede cometer errores. Comprueba los precios antes de comprar.</p>
+  </footer>
+
+</div>

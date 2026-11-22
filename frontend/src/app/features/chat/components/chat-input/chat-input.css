@@ -1,0 +1,42 @@
+.input-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #252535;
+  border: 1px solid #3a3a4a;
+  border-radius: 12px;
+  padding: 8px 10px;
+
+  &:focus-within {
+    border-color: #d8b4fe;
+  }
+
+  textarea {
+    flex: 1;
+    resize: none;
+    max-height: 120px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    font: inherit;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  button {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: #d8b4fe;
+    color: #21152c;
+    font-size: 22px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+  }
+}
