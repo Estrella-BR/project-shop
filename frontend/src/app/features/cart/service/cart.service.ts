@@ -16,12 +16,13 @@ export class CartService {
   readonly list = this._list.asReadonly();  
   private readonly platformId = inject(PLATFORM_ID);
 
-private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
 
-  readonly totalPrice = computed(() =>
-    this._list().reduce((total, item) => total + item.totalPrice, 0)
-  );
+  readonly totalPrice = computed(() => {
+  const sum = this._list().reduce((total, item) => total + item.totalPrice, 0);
+  return Math.round(sum * 100) / 100; // stays a number, no 0.30000000000000004
+});
 
   readonly totalQuantity = computed(() =>
     this._list().reduce((total, item) => total + item.quantity, 0)
@@ -53,6 +54,7 @@ private readonly isBrowser = isPlatformBrowser(this.platformId);
       console.error('Error saving shopping cart:', error);
     }
   }
+  
   addToCart(product: Product): void {
     const index = this._list().findIndex(
       item => item.product.name === product.name
