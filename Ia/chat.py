@@ -9,6 +9,7 @@ import chromadb
 
 from resource_tracker import ResourceTracker
 from personality import build_system_prompt, PERSONALITY_PATH
+from intent import classify_cooking_intent
 
 # ==========================================================
 # CONFIGURACION
@@ -26,6 +27,12 @@ COLLECTION_NAME = "productos_mercadona"
 
 # Productos que se incluyen en el prompt (menos tokens = respuesta mas rapida)
 MAX_CONTEXT_PRODUCTS = 5
+
+# Mensaje de rechazo cuando la pregunta no es de cocina
+NON_COOKING_ANSWER = (
+    "Solo puedo ayudarte con preguntas relacionadas con cocina, "
+    "alimentación o productos del catálogo de Mercadona."
+)
 
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -167,9 +174,6 @@ def create_metadata(product):
 
 EMBED_BATCH_SIZE = 32
 
-# Limitar los hilos de llama.cpp evita que, en un servidor compartido y
-# con carga alta, los hilos se bloqueen entre sí (un lote pasaba de
-# segundos a minutos).
 EMBED_OPTIONS = {"num_thread": int(os.environ.get("OLLAMA_EMBED_THREADS", "2"))}
 CHAT_OPTIONS = {
     "num_thread": int(os.environ.get("OLLAMA_CHAT_THREADS", "6")),
@@ -179,13 +183,7 @@ CHAT_OPTIONS = {
 
 
 def build_index(force=False, tracker: ResourceTracker | None = None):
-    """
-    Construye el índice vectorial de productos.
-
-    - Genera los embeddings por lotes y guarda cada lote al terminar, de
-      forma que una ejecución interrumpida se reanuda donde se quedó.
-    - Si force=True, elimina el índice anterior y lo reconstruye.
-    """
+    """Construye el índice vectorial de productos."""
 
     collection = get_collection()
 
@@ -290,7 +288,6 @@ def build_product_context(results):
     context = []
 
     for result in results[:MAX_CONTEXT_PRODUCTS]:
-        # 'texto' ya incluye precio, formato y supermercado: no se repiten.
         context.append(f"- {result['texto']}")
 
     return "\n\n".join(context)
@@ -310,14 +307,13 @@ def send_question(question, top_k=5, tracker: ResourceTracker | None = None):
     )
 
     context = build_product_context(results)
-    system_prompt = build_system_prompt(context)   # viene de personality.py
+    system_prompt = build_system_prompt(context)
 
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": question},
     ]
 
-    # ⏱️ Medir la llamada a ollama.chat
     t0 = time.perf_counter()
     response = ollama.chat(
         model=CHAT_MODEL,
@@ -333,6 +329,41 @@ def send_question(question, top_k=5, tracker: ResourceTracker | None = None):
         tracker.track_chat(response, wall_time_s=chat_elapsed)
 
     return answer
+
+
+def answer_with_intent(question, top_k=5, tracker=None, skip_intent=False):
+    """
+    Orquesta: clasifica intención → si es cocina, RAG+chat; si no, rechaza.
+
+    Devuelve un dict con:
+      ok, es_cocina, motivo_intencion, answer
+    """
+
+    if skip_intent:
+        intent = {"es_cocina": True, "motivo": "intención no analizada (--no-analyze)"}
+    else:
+        intent = classify_cooking_intent(question, tracker=tracker)
+
+    if not intent["es_cocina"]:
+        return {
+            "ok": True,
+            "es_cocina": False,
+            "motivo_intencion": intent["motivo"],
+            "answer": NON_COOKING_ANSWER,
+        }
+
+    answer = send_question(
+        question,
+        top_k=top_k,
+        tracker=tracker
+    )
+
+    return {
+        "ok": True,
+        "es_cocina": True,
+        "motivo_intencion": intent["motivo"],
+        "answer": answer,
+    }
 
 
 # ==========================================================
@@ -370,6 +401,18 @@ def main():
         help="Muestra el informe de recursos al finalizar"
     )
 
+    parser.add_argument(
+        "--no-analyze",
+        action="store_true",
+        help="Saltarse la clasificación de intención (útil para benchmarks)"
+    )
+
+    parser.add_argument(
+        "--analyze-only",
+        action="store_true",
+        help="Solo clasifica la pregunta, sin RAG ni respuesta"
+    )
+
     args = parser.parse_args()
 
     tracker = ResourceTracker(chroma_dir=CHROMA_DIR)
@@ -381,22 +424,38 @@ def main():
 
         create_directories()
 
+        # Modo solo análisis de intención
+        if args.analyze_only:
+            if not args.question:
+                raise ValueError("--analyze-only requiere --question.")
+
+            intent = classify_cooking_intent(args.question, tracker=tracker)
+
+            print(json.dumps({
+                "ok": True,
+                "es_cocina": intent["es_cocina"],
+                "motivo_intencion": intent["motivo"],
+            }, ensure_ascii=False, indent=4))
+
+            if args.show_resources:
+                tracker.print_report()
+
+            return 0
+
         # Comprobar o construir índice
         build_index(force=args.reindex, tracker=tracker)
 
         # Modo pregunta individual
         if args.question:
 
-            answer = send_question(
+            result = answer_with_intent(
                 args.question,
                 top_k=args.top_k,
-                tracker=tracker
+                tracker=tracker,
+                skip_intent=args.no_analyze,
             )
 
-            output = {
-                "ok": True,
-                "answer": answer,
-            }
+            output = dict(result)
 
             if args.show_resources:
                 output["recursos"] = tracker.report()
@@ -408,7 +467,6 @@ def main():
 
             return 0
 
-        # Si no hay pregunta pero se pide informe de recursos
         if args.show_resources:
             tracker.print_report()
 
