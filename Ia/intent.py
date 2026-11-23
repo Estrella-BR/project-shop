@@ -9,6 +9,18 @@ import ollama
 
 CHAT_MODEL = os.environ.get("OLLAMA_CHAT_MODEL", "qwen2.5:1.5b")
 
+COOKING_KEYWORDS = {
+    "paella", "arroz", "receta", "cocinar", "cocina", "comida", "comer",
+    "ingrediente", "producto", "precio", "mercadona", "leche", "pan",
+    "carne", "pescado", "verdura", "fruta", "postre", "bebida",
+}
+
+NON_COOKING_KEYWORDS = {
+    "capital", "presidente", "poema", "python", "javascript", "guerra",
+    "historia", "matemática", "ecuación", "chiste",
+}
+
+
 INTENT_OPTIONS = {
     "num_thread": int(os.environ.get("OLLAMA_CHAT_THREADS", "6")),
     "num_ctx": 512,
@@ -55,6 +67,7 @@ def _extract_json(text: str) -> dict:
 
 
 def classify_cooking_intent(question: str, tracker=None) -> dict:
+    
     """
     Devuelve {'es_cocina': bool, 'motivo': str, 'raw': str}.
 
