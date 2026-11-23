@@ -2,38 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
+import { CatalogCheck, ChatApiResponse } from '../model/ChatMessage';
+import { Product } from '../../common/model/Product';
 
-export interface Ingredient {
-  nombre: string;
-  cantidad: string;
-}
-
-export interface CatalogProduct {
-  nombre?: string;
-  formato?: string;
-  vendedor?: string;
-  precio?: string | number;
-  imagen?: string;
-}
-
-export interface CatalogCheck {
-  ingrediente: string;
-  cantidad_necesaria: string;
-  encontrado: boolean;
-  producto: CatalogProduct | null;
-}
-
-export interface AteneaAnswer {
-  plato: string;
-  comensales: number;
-  ingredientes_necesarios: Ingredient[];
-  comprobacion_catalogo: CatalogCheck[];
-}
-
-export interface ChatApiResponse {
-  ok: boolean;
-  answer: AteneaAnswer | string;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -48,5 +19,20 @@ export class AiChatService {
       `${this.apiUrl}/chat`,
       { question: message }
     );
+  }
+
+
+  mapCatalogProduct(product: NonNullable<CatalogCheck['producto']>): Product {
+    const result = new Product();
+
+    result.name = product.nombre ?? '';
+    result.price = String(product.precio ?? '');
+    result.quantity = product.formato ?? '';
+    result.image = product.imagen ?? '';
+    result.cleanImage = '';
+    result.url = product.url ?? '';
+    result.seller = product.vendedor ?? '';
+
+    return result;
   }
 }

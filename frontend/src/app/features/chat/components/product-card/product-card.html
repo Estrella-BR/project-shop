@@ -1,0 +1,30 @@
+<article class="chat-product-card">
+  <div class="product-image">
+    @if (product.cleanImage || product.image) {
+      <img [src]="product.cleanImage || product.image" [alt]="product.name" />
+    } @else {
+      <span>🛒</span>
+    }
+  </div>
+
+  <div class="product-info">
+    <h4>{{ product.name }}</h4>
+    <span class="product-format">{{ product.quantity }}</span>
+    <span class="product-seller">{{ product.seller }}</span>
+    <span class="product-price">{{ product.price }} €</span>
+  </div>
+
+  <button
+    type="button"
+    class="add-cart-button"
+    [class.added]="added"
+    [disabled]="added"
+    (click)="onAddToCart()"
+  >
+    @if (added) {
+      ✓ Añadido
+    } @else {
+      <span>+</span> Añadir al carrito
+    }
+  </button>
+</article>

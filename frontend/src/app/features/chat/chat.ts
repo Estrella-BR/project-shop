@@ -1,8 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
-import { AiChatService, AteneaAnswer, ChatApiResponse } from './service/Chat.service';
+import { AteneaAnswer, ChatApiResponse } from './model/ChatMessage';
+import { AiChatService } from './service/Chat.service';
 import { ChatMessage } from './model/ChatMessage';
 import { ChatInputComponent } from './components/chat-input/chat-input';
 import { ChatMessageComponent } from './components/chat-message/chat-message';
+import { Product } from '../common/model/Product';
 
 @Component({
   imports: [
@@ -21,7 +23,7 @@ export class ChatComponent {
     {
       id: 1,
       role: 'assistant',
-      content: '¡Hola! 👋 Soy Atenea, tu asistente de compra. ¿Qué te gustaría preparar hoy?',
+      content: '¡Hola! Soy Atenea, tu asistente de compra. ¿Qué te gustaría preparar hoy?',
       timestamp: new Date()
     }
   ]);
@@ -55,87 +57,88 @@ export class ChatComponent {
     this.loading.set(true);
 
     this.aiService.sendMessage(content.trim()).subscribe({
-      next: (response) => {
-        const answer = this.formatResponse(response);
+      next: response => {
+        const result = this.formatResponse(response);
 
-        this.replaceLoadingMessage(loadingMessage.id, answer);
+        this.replaceLoadingMessage(loadingMessage.id, {
+          content: result.content,
+          products: result.products,
+          loading: false,
+          timestamp: new Date()
+        });
+
         this.loading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error communicating with Atenea:', error);
 
-        this.replaceLoadingMessage(
-          loadingMessage.id,
-          'Lo siento, ha ocurrido un error al comunicarme con Atenea. Inténtalo de nuevo.'
-        );
+        this.replaceLoadingMessage(loadingMessage.id, {
+          content: 'Lo siento, ha ocurrido un error al comunicarme con Atenea. Inténtalo de nuevo.',
+          loading: false,
+          timestamp: new Date()
+        });
 
         this.loading.set(false);
       }
     });
   }
 
-  private replaceLoadingMessage(id: number, content: string): void {
+  private replaceLoadingMessage(
+    id: number,
+    updates: Partial<ChatMessage>
+  ): void {
     this.messages.update(messages =>
       messages.map(message =>
         message.id === id
-          ? {
-              ...message,
-              content,
-              loading: false,
-              timestamp: new Date()
-            }
+          ? { ...message, ...updates }
           : message
       )
     );
   }
 
-  private formatResponse(response: ChatApiResponse): string {
+  private formatResponse(response: ChatApiResponse): {
+    content: string;
+    products: Product[];
+  } {
     if (!response.ok) {
-      return 'No he podido procesar tu consulta.';
+      return {
+        content: 'No he podido procesar tu consulta.',
+        products: []
+      };
     }
 
-    // Atenea puede devolver un texto si la consulta no es de cocina.
     if (typeof response.answer === 'string') {
-      return response.answer;
+      return {
+        content: response.answer,
+        products: []
+      };
     }
 
     return this.formatCookingResponse(response.answer);
   }
 
-  private formatCookingResponse(answer: AteneaAnswer): string {
-    let result = `🍽️ **${answer.plato}** para ${answer.comensales} personas\n\n`;
+  private formatCookingResponse(answer: AteneaAnswer): {
+  content: string;
+  products: Product[];
+} {
+  let content = `🍽️ ${answer.plato} para ${answer.comensales} personas\n\n`;
 
-    result += '**Ingredientes necesarios:**\n';
+  content += '🥕 INGREDIENTES NECESARIOS:\n';
 
-    for (const ingredient of answer.ingredientes_necesarios ?? []) {
-      result += `• ${ingredient.nombre}: ${ingredient.cantidad}\n`;
-    }
-
-    result += '\n**Productos encontrados en el catálogo:**\n';
-
-    for (const item of answer.comprobacion_catalogo ?? []) {
-      if (item.encontrado && item.producto) {
-        const product = item.producto;
-
-        result += `\n✅ **${item.ingrediente}** (${item.cantidad_necesaria})\n`;
-        result += `   ${product.nombre ?? 'Producto encontrado'}\n`;
-
-        if (product.formato) {
-          result += `   Formato: ${product.formato}\n`;
-        }
-
-        if (product.vendedor) {
-          result += `   Supermercado: ${product.vendedor}\n`;
-        }
-
-        if (product.precio !== undefined) {
-          result += `   Precio: ${product.precio} €\n`;
-        }
-      } else {
-        result += `\n❌ ${item.ingrediente}: no encontrado en el catálogo.\n`;
-      }
-    }
-
-    return result;
+  for (const ingredient of answer.ingredientes_necesarios ?? []) {
+    content += `• ${ingredient.nombre}: ${ingredient.cantidad}\n`;
   }
+
+  const products: Product[] = [];
+
+  for (const item of answer.comprobacion_catalogo ?? []) {
+    if (item.encontrado && item.producto) {
+      products.push(
+        this.aiService.mapCatalogProduct(item.producto)
+      );
+    }
+  }
+
+  return { content, products };
+}
 }
