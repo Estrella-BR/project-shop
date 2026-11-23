@@ -2,13 +2,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #252535;
+  background: #2f0b0b;
   border: 1px solid #3a3a4a;
   border-radius: 12px;
   padding: 8px 10px;
 
   &:focus-within {
-    border-color: #d8b4fe;
+    border-color: #2f0b0b;
   }
 
   textarea {
@@ -29,8 +29,8 @@
     height: 36px;
     border: none;
     border-radius: 10px;
-    background: #d8b4fe;
-    color: #21152c;
+    background: #f0a7a7;
+    color: #ffffff;
     font-size: 22px;
     cursor: pointer;
 

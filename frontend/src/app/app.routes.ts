@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/product/product-list/product-list').then(m => m.ProductListComponent),
   },
   {
+    path: 'chat',
+    loadComponent: () => import('./features/chat/chat').then(m => m.ChatComponent),
+  },
+  {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart').then(m => m.CartComponent),
   },

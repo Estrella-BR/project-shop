@@ -13,6 +13,7 @@ export class MenuComponent {
   options = [
     { label: 'Inicio', path: '/' },
     { label: 'Productos', path: '/products' },
+    { label: 'Chat', path: '/chat'},
     { label: 'Lista de la compra', path : '/cart'}
   ];
 }

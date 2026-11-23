@@ -8,11 +8,9 @@
   min-height: 500px;
   display: flex;
   flex-direction: column;
-  background: #171720;
-  border: 1px solid #30303d;
-  border-radius: 16px;
   overflow: hidden;
-  color: #f5f5f5;
+  color: #000000;
+  background-color: #ffffff;
 }
 
 .chat-header {
@@ -26,8 +24,8 @@
     width: 40px;
     height: 40px;
     border-radius: 12px;
-    background: #d8b4fe;
-    color: #21152c;
+    background: #b32d2d;
+    color: #fa3636;
     display: grid;
     place-items: center;
     font-size: 22px;
@@ -40,7 +38,7 @@
 
   span {
     font-size: 12px;
-    color: #aaa;
+    color: #423939;
   }
 
   .header-info span i {

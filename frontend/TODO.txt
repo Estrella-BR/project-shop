@@ -13,4 +13,4 @@ mejorar la busqueda
 ejecutar chat.py 
 adaptar posibles cambios por mover el codigo 
 
-I want to create/update this project public, use the domain cloud-app.online, and for the subdomain test1, create the ssl, my subdomain already has dns
+I want to rebuild this project public, use the domain cloud-app.online, and for the subdomain test1, create the ssl, my subdomain already has dns
