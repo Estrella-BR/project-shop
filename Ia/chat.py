@@ -21,12 +21,15 @@ CHROMA_DIR = BASE_DIR / "chroma_db_rag"
 PERSONALITY_PATH = BASE_DIR / "config" / "personality.txt"
 HISTORY_PATH = BASE_DIR / "conversations" / "history.json"
 
-CHAT_MODEL = "qwen2.5:0.5b"
+CHAT_MODEL = os.environ.get("OLLAMA_CHAT_MODEL", "qwen2.5:1.5b")
 EMBED_MODEL = "all-minilm"
 
 COLLECTION_NAME = "productos_mercadona"
 
-MAX_HISTORY_MESSAGES = 20
+MAX_HISTORY_MESSAGES = 4
+
+# Productos que se incluyen en el prompt (menos tokens = respuesta mas rapida)
+MAX_CONTEXT_PRODUCTS = 3
 
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -183,29 +186,36 @@ def create_metadata(product):
 # INDEXACION RAG
 # ==========================================================
 
+EMBED_BATCH_SIZE = 32
+
+# Limitar los hilos de llama.cpp evita que, en un servidor compartido y
+# con carga alta, los hilos se bloqueen entre sí (un lote pasaba de
+# segundos a minutos).
+EMBED_OPTIONS = {"num_thread": int(os.environ.get("OLLAMA_EMBED_THREADS", "2"))}
+CHAT_OPTIONS = {
+    "num_thread": int(os.environ.get("OLLAMA_CHAT_THREADS", "6")),
+    "num_ctx": 2048,
+    "num_predict": int(os.environ.get("OLLAMA_CHAT_MAX_TOKENS", "160")),
+}
+
+
 def build_index(force=False, tracker: ResourceTracker | None = None):
     """
     Construye el índice vectorial de productos.
 
-    Si force=True, elimina el índice anterior y lo reconstruye.
+    - Genera los embeddings por lotes y guarda cada lote al terminar, de
+      forma que una ejecución interrumpida se reanuda donde se quedó.
+    - Si force=True, elimina el índice anterior y lo reconstruye.
     """
 
     print("Comprobando índice de productos...")
 
     collection = get_collection()
 
-    if not force and collection.count() > 0:
-        print(
-            f"Índice existente: {collection.count()} productos."
-        )
-        return
-
     products = load_products()
 
     if not products:
         raise ValueError("El catálogo de productos está vacío.")
-
-    print(f"Indexando {len(products)} productos...")
 
     if force:
         existing_ids = collection.get()["ids"]
@@ -213,55 +223,51 @@ def build_index(force=False, tracker: ResourceTracker | None = None):
         if existing_ids:
             collection.delete(ids=existing_ids)
 
-    ids = []
-    documents = []
-    embeddings = []
-    metadatas = []
-
+    # IDs únicos y estables (los duplicados reciben el sufijo -<indice>)
+    entries = []
     used_ids = set()
 
     for index, product in enumerate(products):
-
-        original_id = safe_value(
-            product.get("id"),
-            f"product-{index}"
-        )
-
+        original_id = safe_value(product.get("id"), f"product-{index}")
         product_id = original_id
 
-        # Evitar IDs duplicados
         if product_id in used_ids:
             product_id = f"{original_id}-{index}"
 
         used_ids.add(product_id)
-        text = product_to_text(product)
+        entries.append((product_id, product))
+
+    indexed_ids = set(collection.get(include=[])["ids"])
+    pending = [(pid, p) for pid, p in entries if pid not in indexed_ids]
+
+    if not pending:
+        print(f"Índice existente: {collection.count()} productos.")
+        return
+
+    print(f"Indexando {len(pending)} productos "
+          f"({len(indexed_ids)} ya indexados)...", flush=True)
+
+    for start in range(0, len(pending), EMBED_BATCH_SIZE):
+        batch = pending[start:start + EMBED_BATCH_SIZE]
+        texts = [product_to_text(p) for _, p in batch]
+
         t0 = time.perf_counter()
-        embedding_response = ollama.embed(model=EMBED_MODEL, input=text)
+        response = ollama.embed(model=EMBED_MODEL, input=texts, options=EMBED_OPTIONS)
         elapsed = time.perf_counter() - t0
 
         if tracker:
-            tracker.track_embed(text, elapsed_s=elapsed)
-            
-        embedding_response = ollama.embed(
-            model=EMBED_MODEL,
-            input=text
+            tracker.track_embed(" ".join(texts), elapsed_s=elapsed)
+
+        collection.upsert(
+            ids=[pid for pid, _ in batch],
+            documents=texts,
+            embeddings=response["embeddings"],
+            metadatas=[create_metadata(p) for _, p in batch]
         )
 
-        embedding = embedding_response["embeddings"][0]
+        print(f"  {start + len(batch)}/{len(pending)}", flush=True)
 
-        ids.append(product_id)
-        documents.append(text)
-        embeddings.append(embedding)
-        metadatas.append(create_metadata(product))
-
-    collection.upsert(
-        ids=ids,
-        documents=documents,
-        embeddings=embeddings,
-        metadatas=metadatas
-    )
-
-    print(f"Índice creado correctamente: {len(ids)} productos.")
+    print(f"Índice creado correctamente: {collection.count()} productos.")
 
 
 # ==========================================================
@@ -274,7 +280,7 @@ def search_products(question, top_k=5, tracker: ResourceTracker | None = None):
         return []
 
     t0 = time.perf_counter()
-    embedding_response = ollama.embed(model=EMBED_MODEL, input=question)
+    embedding_response = ollama.embed(model=EMBED_MODEL, input=question, options=EMBED_OPTIONS)
     embed_elapsed = time.perf_counter() - t0
 
     if tracker:
@@ -313,7 +319,7 @@ def build_product_context(results):
 
     context = []
 
-    for result in results:
+    for result in results[:MAX_CONTEXT_PRODUCTS]:
 
         metadata = result["metadatos"]
 
@@ -328,12 +334,8 @@ def build_product_context(results):
             else "Precio desconocido"
         )
 
-        context.append(
-            f"- {result['texto']}\n"
-            f"  Precio: {price_text}\n"
-            f"  Formato: {quantity}\n"
-            f"  Supermercado: {seller}"
-        )
+        # 'texto' ya incluye precio, formato y supermercado: no se repiten.
+        context.append(f"- {result['texto']}")
 
     return "\n\n".join(context)
 
@@ -466,7 +468,8 @@ def send_question(question, history, top_k=5, tracker: ResourceTracker | None = 
     response = ollama.chat(
         model=CHAT_MODEL,
         messages=messages,
-        stream=False
+        stream=False,
+        options=CHAT_OPTIONS
     )
     chat_elapsed = time.perf_counter() - t0
 
