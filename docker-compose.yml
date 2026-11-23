@@ -5,7 +5,7 @@ services:
       context: ./backend
     container_name: spring-backend
     ports:
-      - "8080:8080"
+      - "8089:8080"
 
   frontend:
     build:

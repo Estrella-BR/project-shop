@@ -1,82 +1,18 @@
 [
     {
         "role": "user",
-        "content": "¿Qué aceites hay?"
+        "content": "quiero hacer paella"
     },
     {
         "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay dos tipos de aceites:\n\n1. Aceite de oliva virgen extra Hacendado:\n   - Precio: 2.60 euros\n   - Formato: Spray de 200 ml\n\n2. Tortas de aceite Inés Rosales:\n   - Precio: 2.15 euros (versión sin azúcar)\n   - Formato: Paquete de 180 g\n   - Precio: 2.70 euros (versión normal)\n   - Formato: Paquete de 150 g\n\n¿Necesitas más información sobre estos aceites o sobre algún otro aspecto relacionado con la cocina?"
+        "content": "¡Genial! El paella es una receta exquisita. Para comenzar, necesitarás un buen 500 gramos de arroz paella, una taza de aceite de oliva, un puñado de cebolla picada, una cucharada de ajos, una papa picada y una patata cocida, 2 huevos, 200 gramos de atún, 200 gramos de champiñones, una cucharadita de pimentón dulce, 1 cucharada de mostaza, un pimiento picado y una cucharadita de mostaza.\n\nPara la salsa, necesitarás 1 cucharadita de pimentón dulce,"
     },
     {
         "role": "user",
-        "content": "dime que aceite hay"
+        "content": "como hago pasta"
     },
     {
         "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay dos tipos de aceites:\n\n1. Aceite de oliva virgen extra Hacendado:\n   - Precio: 2.60 euros\n   - Formato: Spray de 200 ml\n\n2. Tortas de aceite Inés Rosales:\n   - Precio: 2.15 euros (versión sin azúcar)\n   - Formato: Paquete de 180 g\n   - Precio: 2.70 euros (versión normal)\n   - Formato: Paquete de 150 g\n\n¿Necesitas más información sobre estos aceites o sobre algún otro aspecto relacionado con la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "dime que aceite hay"
-    },
-    {
-        "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay dos tipos de aceites:\n\n1. **Aceite de oliva virgen extra Hacendado**:\n   - Precio: 2.60 euros\n   - Formato: Spray de 200 ml\n\n2. **Tortas de aceite Inés Rosales**:\n   - Precio: 2.15 euros (versión sin azúcar)\n   - Formato: Paquete de 180 g\n   - Precio: 2.70 euros (versión normal)\n   - Formato: Paquete de 150 g\n\n¿Necesitas más información sobre estos aceites o sobre algún otro aspecto relacionado con la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "dime que aceite hay"
-    },
-    {
-        "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay dos tipos de aceites:\n\n1. **Aceite de oliva virgen extra Hacendado**:\n   - Precio: 2.60 euros\n   - Formato: Spray de 200 ml\n\n2. **Tortas de aceite Inés Rosales**:\n   - Precio: 2.15 euros (versión sin azúcar)\n   - Formato: Paquete de 180 g\n   - Precio: 2.70 euros (versión normal)\n   - Formato: Paquete de 150 g\n\n¿Necesitas más información sobre estos aceites o sobre algún otro aspecto relacionado con la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "dime que tomatehay"
-    },
-    {
-        "role": "assistant",
-        "content": "Lo siento, solo puedo ayudarte con temas de cocina: recetas, técnicas, ingredientes, menús, conservación de alimentos y utensilios. ¿Te ayudo con algo relacionado con la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "dime que tomate frito hay"
-    },
-    {
-        "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay un producto de tomate frito:\n\n1. **Tomate frito Hacendado con aceite de oliva**:\n   - Precio: 1.40 euros\n   - Formato: 3 mini briks x 210 g\n   - Supermercado: Mercadona\n\n¿Necesitas más información sobre este producto o sobre algún otro aspecto relacionado con la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "¿Qué aceites hay?"
-    },
-    {
-        "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay dos tipos de aceites:\n\n1. **Aceite de oliva virgen extra Hacendado**:\n   - Precio: 2.60 euros\n   - Formato: Spray de 200 ml\n\n2. **Tortas de aceite Inés Rosales**:\n   - Precio: 2.15 euros (versión sin azúcar)\n   - Formato: Paquete de 180 g\n   - Precio: 2.70 euros (versión normal)\n   - Formato: Paquete de 150 g\n\n¿Necesitas más información sobre estos aceites o sobre algún otro aspecto relacionado con la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "¿Cuánto cuesta la leche entera?"
-    },
-    {
-        "role": "assistant",
-        "content": "Lo siento, pero en el catálogo que tienes disponible no hay ningún producto de leche entera. Los productos mencionados son tomate frito, fruta + leche mediterráneo y fruta + leche tropical, todos de la marca Hacendado.\n\n¿Necesitas información sobre algún otro producto o aspecto de la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "¿Cuánto cuesta la leche entera?"
-    },
-    {
-        "role": "assistant",
-        "content": "En el catálogo que tienes disponible, hay varios productos de leche entera sin lactosa. Aquí te proporciono la información:\n\n1. **Leche entera sin lactosa Hacendado**:\n   - Precio: 6.18 euros\n   - Formato: 6 briks x 1 L\n   - Supermercado: Mercadona\n\n2. **Leche entera sin lactosa Hacendado**:\n   - Precio: 1.03 euros\n   - Formato: Brik 1 L\n   - Supermercado: Mercadona\n\n¿Necesitas más información sobre estos productos o sobre algún otro aspecto de la cocina?"
-    },
-    {
-        "role": "user",
-        "content": "otra pregunta"
-    },
-    {
-        "role": "assistant",
-        "content": "¡Claro! ¿Sobre qué tema de cocina tienes alguna otra pregunta? Puedo ayudarte con recetas, técnicas, ingredientes, menús, conservación de alimentos y otros aspectos relacionados."
+        "content": "¡Por supuesto! Aquí tienes la receta de una sencilla pasta:\n\nIngredientes para la pasta: 500 gramos de pasta, 1 taza de agua, 2 cuartos de tomate (solo si no quieres usar una salsa), sal, 1 cucharada de aceite de oliva, 1 cucharadita de pimienta.\n\nIngredientes para la salsa: 2 huevos, 1 cucharada de mostaza, 1 cucharada de aceite de oliva, 200 gramos de champiñones, 2 cucharadas de agua, 1 pimentón, 1 cucharada de mostaza.\n\nPara preparar la pasta, calienta"
     }
 ]

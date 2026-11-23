@@ -2,6 +2,7 @@ import { Component, Input, OnInit, computed, effect, inject, signal } from '@ang
 import { CommonModule } from '@angular/common';
 import { Product } from '../../../../common/model/Product';
 import { CartService } from '../../../../cart/service/cart.service';
+import { environment } from '../../../../../../environments/environment';
 @Component({
   selector: 'app-product-component',
   standalone: true,
@@ -24,7 +25,7 @@ export class ProductComponent implements OnInit {
           return image;
       }
 
-      return `http://localhost:8080${image}`;
+      return `${environment.apiUrl}${image}`;
   }
   
   addToCart(): void {
