@@ -9,14 +9,16 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class CartService {
 
-  private readonly STORAGE_KEY = 'shopping-cart';
+  private readonly COOKIE_NAME = 'shopping_cart';
+  private readonly COOKIE_DAYS = 30;
+  private readonly CHUNK_SIZE = 3500; // encoded chars per cookie
+
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   private _list = signal<CartProduct[]>(this.loadCart());
 
-  readonly list = this._list.asReadonly();  
-  private readonly platformId = inject(PLATFORM_ID);
-
-  private readonly isBrowser = isPlatformBrowser(this.platformId);
+  readonly list = this._list.asReadonly();
 
 
   readonly totalPrice = computed(() => {
@@ -28,11 +30,36 @@ export class CartService {
     this._list().reduce((total, item) => total + item.quantity, 0)
   );
 
+  private readCookie(name: string): string | null {
+    const prefix = name + '=';
+    for (const part of document.cookie.split('; ')) {
+      if (part.startsWith(prefix)) {
+        return decodeURIComponent(part.substring(prefix.length));
+      }
+    }
+    return null;
+  }
+
+  private writeCookie(name: string, value: string): void {
+    const maxAge = this.COOKIE_DAYS * 24 * 60 * 60;
+    document.cookie =
+      `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; SameSite=Lax`;
+  }
+
+  private deleteCookie(name: string): void {
+    document.cookie = `${name}=; max-age=0; path=/; SameSite=Lax`;
+  }
+
   private loadCart(): CartProduct[] {
     if (!this.isBrowser) return [];
 
     try {
-      const savedCart = localStorage.getItem(this.STORAGE_KEY);
+      // A cookie holds ~4KB, so the cart is split across cart_0, cart_1, ...
+      const count = Number(this.readCookie(this.COOKIE_NAME + '_n') ?? 0);
+      let savedCart = '';
+      for (let i = 0; i < count; i++) {
+        savedCart += this.readCookie(`${this.COOKIE_NAME}_${i}`) ?? '';
+      }
       if (!savedCart) return [];
 
       const products: { product: Product; quantity: number }[] =
@@ -49,12 +76,31 @@ export class CartService {
     if (!this.isBrowser) return;
 
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this._list()));
+      const json = JSON.stringify(this._list());
+      const oldCount = Number(this.readCookie(this.COOKIE_NAME + '_n') ?? 0);
+
+      // Chunk by encoded size so each cookie stays under the ~4KB limit.
+      const chunks: string[] = [];
+      let current = '';
+      for (const ch of json) {
+        if (encodeURIComponent(current + ch).length > this.CHUNK_SIZE) {
+          chunks.push(current);
+          current = '';
+        }
+        current += ch;
+      }
+      if (current) chunks.push(current);
+
+      chunks.forEach((c, i) => this.writeCookie(`${this.COOKIE_NAME}_${i}`, c));
+      for (let i = chunks.length; i < oldCount; i++) {
+        this.deleteCookie(`${this.COOKIE_NAME}_${i}`);
+      }
+      this.writeCookie(this.COOKIE_NAME + '_n', String(chunks.length));
     } catch (error) {
       console.error('Error saving shopping cart:', error);
     }
   }
-  
+
   addToCart(product: Product): void {
     const index = this._list().findIndex(
       item => item.product.name === product.name

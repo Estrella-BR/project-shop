@@ -109,6 +109,22 @@ public class ProductService {
         return PaginatedResponse.of(products, page, size);
     }
 
+    /** Todos los productos cuyo nombre coincide con la búsqueda, por relevancia. */
+    public List<Product> searchByName(String name) throws IOException {
+        if (name == null || name.isBlank()) {
+            return new ArrayList<>();
+        }
+        loadProducts(new ArrayList<>());
+        final String query = name.trim();
+        record Scored(Product p, double score) {}
+        return products.stream()
+                .map(p -> new Scored(p, nameSimilarity(query, p.getName())))
+                .filter(s -> s.score() >= NAME_THRESHOLD)
+                .sorted(Comparator.comparingDouble((Scored s) -> s.score()).reversed())
+                .map(Scored::p)
+                .collect(Collectors.toList());
+    }
+
     public PaginatedResponse<Product> getProductsFiltered(
             int page,
             int size,
