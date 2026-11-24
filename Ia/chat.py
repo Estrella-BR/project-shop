@@ -1,10 +1,8 @@
-
 import os
 import sys
 import json
-import argparse
-from pathlib import Path
 import time
+from pathlib import Path
 
 import ollama
 import chromadb
@@ -30,36 +28,27 @@ COLLECTION_NAME = "productos_mercadona"
 
 EMBED_BATCH_SIZE = 32
 
-# Configuración de embeddings
 EMBED_OPTIONS = {
     "num_thread": int(os.environ.get("OLLAMA_EMBED_THREADS", "2"))
 }
 
-# Configuración del modelo de chat
 CHAT_OPTIONS = {
     "num_thread": int(os.environ.get("OLLAMA_CHAT_THREADS", "6")),
     "num_ctx": 4096,
     "num_predict": int(os.environ.get("OLLAMA_CHAT_MAX_TOKENS", "800")),
-    "temperature": 0
+    "temperature": 0,
 }
 
-# Mensaje de rechazo
 NON_COOKING_ANSWER = (
     "Solo puedo ayudarte con preguntas relacionadas con cocina, "
     "alimentación o productos del catálogo de Mercadona."
 )
 
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
-
-
 # ==========================================================
 # PROMPTS
 # ==========================================================
 
-# FASE 1:
-# Este prompt NO recibe información del catálogo.
 INGREDIENTS_SYSTEM_PROMPT = """
 Eres un asistente especializado en cocina.
 
@@ -90,9 +79,6 @@ Devuelve exclusivamente un JSON válido con esta estructura:
     ]
 }
 """
-
-# FASE 2:
-# Este prompt recibe los ingredientes y los productos recuperados.
 
 MATCH_SYSTEM_PROMPT = """
 Eres un asistente especializado en identificar productos alimenticios.
@@ -172,9 +158,7 @@ def load_products():
 def get_collection():
     """Obtiene la colección de ChromaDB."""
 
-    client = chromadb.PersistentClient(
-        path=str(CHROMA_DIR)
-    )
+    client = chromadb.PersistentClient(path=str(CHROMA_DIR))
 
     collection = client.get_or_create_collection(
         name=COLLECTION_NAME
@@ -258,25 +242,19 @@ def product_to_text(product):
         f"Producto: {name}",
         f"Precio: {price} euros",
         f"Formato: {quantity}",
-        f"Supermercado: {seller}"
+        f"Supermercado: {seller}",
     ]
 
     if product.get("category"):
-        parts.append(
-            f"Categoría: {product['category']}"
-        )
+        parts.append(f"Categoría: {product['category']}")
 
     if product.get("description"):
-        parts.append(
-            f"Descripción: {product['description']}"
-        )
+        parts.append(f"Descripción: {product['description']}")
 
     tags = product.get("tags")
 
     if isinstance(tags, list) and tags:
-        parts.append(
-            "Etiquetas: " + ", ".join(map(str, tags))
-        )
+        parts.append("Etiquetas: " + ", ".join(map(str, tags)))
 
     return ". ".join(parts) + "."
 
@@ -285,18 +263,15 @@ def create_metadata(product):
     """Prepara los metadatos compatibles con ChromaDB."""
 
     metadata = {
-        "nombre": safe_value(
-            product.get("name"),
-            "Sin nombre"
-        ),
+        "nombre": safe_value(product.get("name"), "Sin nombre"),
         "formato": safe_value(
             product.get("cuantity", product.get("quantity")),
-            "Desconocido"
+            "Desconocido",
         ),
         "vendedor": safe_value(
             product.get("seller"),
-            "Desconocido"
-        )
+            "Desconocido",
+        ),
     }
 
     price = parse_price(product.get("price"))
@@ -356,9 +331,7 @@ def build_index(force=False, tracker: ResourceTracker | None = None):
 
         entries.append((product_id, product))
 
-    indexed_ids = set(
-        collection.get(include=[])["ids"]
-    )
+    indexed_ids = set(collection.get(include=[])["ids"])
 
     pending = [
         (pid, product)
@@ -371,14 +344,12 @@ def build_index(force=False, tracker: ResourceTracker | None = None):
 
     print(
         f"Indexando {len(pending)} productos...",
-        file=sys.stderr
+        file=sys.stderr,
     )
 
     for start in range(0, len(pending), EMBED_BATCH_SIZE):
 
-        batch = pending[
-            start:start + EMBED_BATCH_SIZE
-        ]
+        batch = pending[start:start + EMBED_BATCH_SIZE]
 
         texts = [
             product_to_text(product)
@@ -390,7 +361,7 @@ def build_index(force=False, tracker: ResourceTracker | None = None):
         response = ollama.embed(
             model=EMBED_MODEL,
             input=texts,
-            options=EMBED_OPTIONS
+            options=EMBED_OPTIONS,
         )
 
         elapsed = time.perf_counter() - t0
@@ -398,19 +369,17 @@ def build_index(force=False, tracker: ResourceTracker | None = None):
         if tracker:
             tracker.track_embed(
                 " ".join(texts),
-                elapsed_s=elapsed
+                elapsed_s=elapsed,
             )
 
         collection.upsert(
-            ids=[
-                pid for pid, _ in batch
-            ],
+            ids=[pid for pid, _ in batch],
             documents=texts,
             embeddings=response["embeddings"],
             metadatas=[
                 create_metadata(product)
                 for _, product in batch
-            ]
+            ],
         )
 
 
@@ -421,7 +390,7 @@ def build_index(force=False, tracker: ResourceTracker | None = None):
 def search_products(
     question,
     top_k=8,
-    tracker: ResourceTracker | None = None
+    tracker: ResourceTracker | None = None,
 ):
     """Busca productos relacionados con una consulta en ChromaDB."""
 
@@ -437,16 +406,13 @@ def search_products(
     embedding_response = ollama.embed(
         model=EMBED_MODEL,
         input=question,
-        options=EMBED_OPTIONS
+        options=EMBED_OPTIONS,
     )
 
     embed_elapsed = time.perf_counter() - t0
 
     if tracker:
-        tracker.track_embed(
-            question,
-            elapsed_s=embed_elapsed
-        )
+        tracker.track_embed(question, elapsed_s=embed_elapsed)
 
     embedding = embedding_response["embeddings"][0]
 
@@ -455,11 +421,7 @@ def search_products(
     results = collection.query(
         query_embeddings=[embedding],
         n_results=min(top_k, total),
-        include=[
-            "documents",
-            "metadatas",
-            "distances"
-        ]
+        include=["documents", "metadatas", "distances"],
     )
 
     rag_elapsed = time.perf_counter() - t1
@@ -472,22 +434,18 @@ def search_products(
         {
             "texto": document,
             "metadatos": metadata,
-            "distancia": distance
+            "distancia": distance,
         }
         for document, metadata, distance in zip(
             documents,
             metadatas,
-            distances
+            distances,
         )
         if document is not None
     ]
 
     if tracker:
-        tracker.track_rag(
-            top_k,
-            parsed,
-            elapsed_s=rag_elapsed
-        )
+        tracker.track_rag(top_k, parsed, elapsed_s=rag_elapsed)
 
     return parsed
 
@@ -505,14 +463,8 @@ def generate_ingredients(question, tracker=None):
     """
 
     messages = [
-        {
-            "role": "system",
-            "content": INGREDIENTS_SYSTEM_PROMPT
-        },
-        {
-            "role": "user",
-            "content": question
-        }
+        {"role": "system", "content": INGREDIENTS_SYSTEM_PROMPT},
+        {"role": "user", "content": question},
     ]
 
     t0 = time.perf_counter()
@@ -522,16 +474,13 @@ def generate_ingredients(question, tracker=None):
         messages=messages,
         stream=False,
         format="json",
-        options=CHAT_OPTIONS
+        options=CHAT_OPTIONS,
     )
 
     elapsed = time.perf_counter() - t0
 
     if tracker:
-        tracker.track_chat(
-            response,
-            wall_time_s=elapsed
-        )
+        tracker.track_chat(response, wall_time_s=elapsed)
 
     raw = response["message"]["content"]
 
@@ -544,7 +493,6 @@ def generate_ingredients(question, tracker=None):
             "La IA no ha generado una lista válida de ingredientes."
         )
 
-    # Validar los ingredientes generados.
     validated = []
 
     for ingredient in ingredients:
@@ -552,20 +500,15 @@ def generate_ingredients(question, tracker=None):
         if not isinstance(ingredient, dict):
             continue
 
-        name = safe_value(
-            ingredient.get("nombre")
-        )
-
-        quantity = safe_value(
-            ingredient.get("cantidad")
-        )
+        name = safe_value(ingredient.get("nombre"))
+        quantity = safe_value(ingredient.get("cantidad"))
 
         if not name:
             continue
 
         validated.append({
             "nombre": name,
-            "cantidad": quantity or "Cantidad no especificada"
+            "cantidad": quantity or "Cantidad no especificada",
         })
 
     if not validated:
@@ -576,10 +519,10 @@ def generate_ingredients(question, tracker=None):
     return {
         "plato": safe_value(
             data.get("plato"),
-            "Plato solicitado"
+            "Plato solicitado",
         ),
         "comensales": data.get("comensales", 2),
-        "ingredientes": validated
+        "ingredientes": validated,
     }
 
 
@@ -587,11 +530,7 @@ def generate_ingredients(question, tracker=None):
 # FASE 2: IDENTIFICACION DE PRODUCTOS
 # ==========================================================
 
-def match_catalog_product(
-    ingredient,
-    results,
-    tracker=None
-):
+def match_catalog_product(ingredient, results, tracker=None):
     """
     Identifica productos equivalentes al ingrediente.
 
@@ -613,25 +552,22 @@ def match_catalog_product(
             "nombre": metadata.get("nombre"),
             "precio": metadata.get("precio"),
             "formato": metadata.get("formato"),
-            "vendedor": metadata.get("vendedor")
+            "vendedor": metadata.get("vendedor"),
         })
 
     messages = [
-        {
-            "role": "system",
-            "content": MATCH_SYSTEM_PROMPT
-        },
+        {"role": "system", "content": MATCH_SYSTEM_PROMPT},
         {
             "role": "user",
             "content": json.dumps(
                 {
                     "ingrediente": ingredient["nombre"],
                     "cantidad_necesaria": ingredient["cantidad"],
-                    "productos_catalogo": candidates
+                    "productos_catalogo": candidates,
                 },
-                ensure_ascii=False
-            )
-        }
+                ensure_ascii=False,
+            ),
+        },
     ]
 
     t0 = time.perf_counter()
@@ -641,20 +577,15 @@ def match_catalog_product(
         messages=messages,
         stream=False,
         format="json",
-        options=CHAT_OPTIONS
+        options=CHAT_OPTIONS,
     )
 
     elapsed = time.perf_counter() - t0
 
     if tracker:
-        tracker.track_chat(
-            response,
-            wall_time_s=elapsed
-        )
+        tracker.track_chat(response, wall_time_s=elapsed)
 
-    selection = extract_json(
-        response["message"]["content"]
-    )
+    selection = extract_json(response["message"]["content"])
 
     indices = selection.get("indices", [])
 
@@ -672,27 +603,20 @@ def match_catalog_product(
         ):
 
             metadata = results[index]["metadatos"]
+            price = parse_price(metadata.get("precio"))
 
-            price = parse_price(
-                metadata.get("precio")
-            )
-
-            # Sin precio conocido no podemos comparar.
             if price is None:
                 continue
 
             valid_candidates.append({
                 "metadata": metadata,
-                "precio": price
+                "precio": price,
             })
 
     if not valid_candidates:
         return None
 
-    # Elegir el producto equivalente más barato.
-    valid_candidates.sort(
-        key=lambda product: product["precio"]
-    )
+    valid_candidates.sort(key=lambda product: product["precio"])
 
     return valid_candidates[0]["metadata"]
 
@@ -701,11 +625,7 @@ def match_catalog_product(
 # FASE 2: BUSQUEDA DE TODOS LOS INGREDIENTES
 # ==========================================================
 
-def check_catalog(
-    ingredients,
-    top_k=8,
-    tracker=None
-):
+def check_catalog(ingredients, top_k=8, tracker=None):
     """
     Busca individualmente cada ingrediente en ChromaDB.
     """
@@ -717,20 +637,20 @@ def check_catalog(
         results = search_products(
             ingredient["nombre"],
             top_k=top_k,
-            tracker=tracker
+            tracker=tracker,
         )
 
         product = match_catalog_product(
             ingredient,
             results,
-            tracker=tracker
+            tracker=tracker,
         )
 
         catalog_results.append({
             "ingrediente": ingredient["nombre"],
             "cantidad_necesaria": ingredient["cantidad"],
             "encontrado": product is not None,
-            "producto": product
+            "producto": product,
         })
 
     return catalog_results
@@ -743,7 +663,7 @@ def check_catalog(
 def send_question(
     question,
     top_k=8,
-    tracker: ResourceTracker | None = None
+    tracker: ResourceTracker | None = None,
 ):
     """
     Ejecuta las dos fases de Atenea:
@@ -752,34 +672,22 @@ def send_question(
     2. Busca cada ingrediente en ChromaDB.
     """
 
-    # ------------------------------------------------------
-    # FASE 1: GENERAR INGREDIENTES
-    # ------------------------------------------------------
-
     ingredient_data = generate_ingredients(
         question,
-        tracker=tracker
+        tracker=tracker,
     )
-
-    # ------------------------------------------------------
-    # FASE 2: CONSULTAR CATALOGO
-    # ------------------------------------------------------
 
     catalog_results = check_catalog(
         ingredient_data["ingredientes"],
         top_k=top_k,
-        tracker=tracker
+        tracker=tracker,
     )
-
-    # ------------------------------------------------------
-    # RESULTADO
-    # ------------------------------------------------------
 
     return {
         "plato": ingredient_data["plato"],
         "comensales": ingredient_data["comensales"],
         "ingredientes_necesarios": ingredient_data["ingredientes"],
-        "comprobacion_catalogo": catalog_results
+        "comprobacion_catalogo": catalog_results,
     }
 
 
@@ -791,7 +699,7 @@ def answer_with_intent(
     question,
     top_k=8,
     tracker=None,
-    skip_intent=False
+    skip_intent=False,
 ):
     """
     Clasifica la intención y ejecuta Atenea.
@@ -807,14 +715,14 @@ def answer_with_intent(
 
         intent = {
             "es_cocina": True,
-            "motivo": "intención no analizada (--no-analyze)"
+            "motivo": "intención no analizada (--no-analyze)",
         }
 
     else:
 
         intent = classify_cooking_intent(
             question,
-            tracker=tracker
+            tracker=tracker,
         )
 
     if not intent["es_cocina"]:
@@ -823,180 +731,54 @@ def answer_with_intent(
             "ok": True,
             "es_cocina": False,
             "motivo_intencion": intent["motivo"],
-            "answer": NON_COOKING_ANSWER
+            "answer": NON_COOKING_ANSWER,
         }
 
     answer = send_question(
         question,
         top_k=top_k,
-        tracker=tracker
+        tracker=tracker,
     )
 
     return {
         "ok": True,
         "es_cocina": True,
         "motivo_intencion": intent["motivo"],
-        "answer": answer
+        "answer": answer,
     }
 
 
 # ==========================================================
-# MAIN
+# API PARA main.py
 # ==========================================================
 
-def main():
+def create_tracker() -> ResourceTracker:
+    """Crea un ResourceTracker apuntando al directorio de ChromaDB."""
 
-    parser = argparse.ArgumentParser(
-        description="Atenea - Asistente de cocina con Ollama y RAG"
+    return ResourceTracker(chroma_dir=CHROMA_DIR)
+
+
+def analyze_intent(question, tracker=None):
+    """Solo clasifica la intención de una pregunta."""
+
+    return classify_cooking_intent(
+        question,
+        tracker=tracker,
     )
 
-    parser.add_argument(
-        "--question",
-        type=str,
-        help="Realiza una pregunta individual"
-    )
 
-    parser.add_argument(
-        "--top-k",
-        type=int,
-        default=8,
-        help="Número de productos recuperados por ingrediente"
-    )
-
-    parser.add_argument(
-        "--reindex",
-        action="store_true",
-        help="Reconstruye el índice de productos"
-    )
-
-    parser.add_argument(
-        "--show-resources",
-        action="store_true",
-        help="Muestra el informe de recursos al finalizar"
-    )
-
-    parser.add_argument(
-        "--no-analyze",
-        action="store_true",
-        help="Saltarse la clasificación de intención"
-    )
-
-    parser.add_argument(
-        "--analyze-only",
-        action="store_true",
-        help="Solo clasifica la pregunta, sin RAG ni respuesta"
-    )
-
-    args = parser.parse_args()
-
-    tracker = ResourceTracker(
-        chroma_dir=CHROMA_DIR
-    )
-
-    try:
-
-        if args.top_k < 1:
-            raise ValueError(
-                "--top-k debe ser mayor que cero."
-            )
-
-        create_directories()
-
-        # --------------------------------------------------
-        # SOLO CLASIFICACION DE INTENCION
-        # --------------------------------------------------
-
-        if args.analyze_only:
-
-            if not args.question:
-                raise ValueError(
-                    "--analyze-only requiere --question."
-                )
-
-            intent = classify_cooking_intent(
-                args.question,
-                tracker=tracker
-            )
-
-            print(json.dumps(
-                {
-                    "ok": True,
-                    "es_cocina": intent["es_cocina"],
-                    "motivo_intencion": intent["motivo"]
-                },
-                ensure_ascii=False,
-                indent=4
-            ))
-
-            if args.show_resources:
-                tracker.print_report()
-
-            return 0
-
-        # --------------------------------------------------
-        # COMPROBAR O CONSTRUIR INDICE
-        # --------------------------------------------------
-
-        build_index(
-            force=args.reindex,
-            tracker=tracker
-        )
-
-        # --------------------------------------------------
-        # PREGUNTA INDIVIDUAL
-        # --------------------------------------------------
-
-        if args.question:
-
-            result = answer_with_intent(
-                args.question,
-                top_k=args.top_k,
-                tracker=tracker,
-                skip_intent=args.no_analyze
-            )
-
-            output = dict(result)
-
-            if args.show_resources:
-                output["recursos"] = tracker.report()
-
-            print(json.dumps(
-                output,
-                ensure_ascii=False,
-                indent=4
-            ))
-
-            if args.show_resources:
-                tracker.print_report()
-
-            return 0
-
-        if args.show_resources:
-            tracker.print_report()
-
-        return 0
-
-    except Exception as error:
-
-        output = {
-            "ok": False,
-            "error": str(error)
-        }
-
-        if args.show_resources:
-            output["recursos"] = tracker.report()
-
-        print(json.dumps(
-            output,
-            ensure_ascii=False,
-            indent=4
-        ))
-
-        return 1
-
-    finally:
-        tracker.stop()
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+__all__ = [
+    # Público (usado por main.py)
+    "answer_with_intent",
+    "analyze_intent",
+    "build_index",
+    "create_directories",
+    "create_tracker",
+    "ResourceTracker",
+    # Reutilizables programáticamente
+    "send_question",
+    "generate_ingredients",
+    "check_catalog",
+    "search_products",
+    "match_catalog_product",
+]
