@@ -6,6 +6,58 @@ from config.config import INGREDIENTS_SCHEMA
 from llm import chat
 from utils import extract_json, safe_value
 
+import re
+import unicodedata
+
+
+def normalize_text(text):
+    text = text.lower().strip()
+
+    text = unicodedata.normalize("NFD", text)
+
+    text = "".join(
+        c for c in text
+        if unicodedata.category(c) != "Mn"
+    )
+
+    return re.sub(r"\s+", " ", text)
+
+
+def extract_excluded_ingredients(question):
+
+    exclusions = []
+
+    patterns = [
+        r"\bsin\s+([^,.!?]+)",
+        r"\bno\s+quiero\s+([^,.!?]+)",
+        r"\bno\s+lleve\s+([^,.!?]+)",
+        r"\bno\s+lleva\s+([^,.!?]+)",
+        r"\balergia\s+a\s+([^,.!?]+)"
+    ]
+
+    for pattern in patterns:
+        matches = re.findall(
+            pattern,
+            question.lower()
+        )
+
+        exclusions.extend(matches)
+
+    return [
+        normalize_text(item)
+        for item in exclusions
+    ]
+
+
+def is_excluded(name, exclusions):
+
+    normalized = normalize_text(name)
+
+    return any(
+        exclusion in normalized
+        or normalized in exclusion
+        for exclusion in exclusions
+    )
 
 def generate_ingredients(question, tracker=None):
 
@@ -34,14 +86,15 @@ def generate_ingredients(question, tracker=None):
         raise ValueError(
             "La IA no ha generado una lista válida de ingredientes."
         )
-
+    
+    exclusions = extract_excluded_ingredients(question)
     validated = []
     seen = set()
 
     for ingredient in ingredients:
 
         if not isinstance(ingredient, dict):
-            continue
+            continue  
 
         name = safe_value(ingredient.get("nombre"))
         quantity = safe_value(ingredient.get("cantidad"))
@@ -54,6 +107,9 @@ def generate_ingredients(question, tracker=None):
 
         if normalized in seen:
             continue
+        
+        if is_excluded(name, exclusions):
+            continue  
 
         seen.add(normalized)
 

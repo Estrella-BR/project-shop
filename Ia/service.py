@@ -26,7 +26,7 @@ def send_question(question, top_k=8, tracker=None):
     return {
         "plato": ingredient_data["plato"],
         "comensales": ingredient_data["comensales"],
-        "ingredientes_necesarios": ingredient_data["ingredientes"],
+        "ingredientes_necesarios": ingredient_data["ingredientes_necesarios"],
         "comprobacion_catalogo": catalog_results,
     }
 
