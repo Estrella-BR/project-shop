@@ -30,8 +30,11 @@ def send_question(
         tracker=tracker,
     )
 
+    dish = ingredient_data["plato"]
+
     catalog_results = check_catalog(
         ingredient_data["ingredientes_necesarios"],
+        plato=dish,
         top_k=top_k,
         tracker=tracker,
     )

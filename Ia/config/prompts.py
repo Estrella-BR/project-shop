@@ -64,44 +64,56 @@ No incluyas texto fuera del JSON.
 Devuelve exclusivamente la estructura JSON solicitada.
 """
 
-MATCH_SYSTEM_PROMPT = """
-Eres un asistente especializado en identificar productos alimenticios.
+MATCH_SYSTEM_PROMPT = """CONTEXTO DE LA RECETA:
 
-OBJETIVO:
-Determinar cuáles de los productos del catálogo son equivalentes
-al ingrediente solicitado.
+Recibirás el nombre de una receta, un ingrediente necesario
+y una lista de productos disponibles en el catálogo.
 
-REGLAS:
-- Utiliza exclusivamente los productos proporcionados.
-- No inventes productos ni precios.
-- Ten en cuenta el uso culinario del ingrediente.
-- Puedes aceptar diferencias de marca y denominación comercial.
-- No confundas productos similares pero diferentes.
-- No consideres equivalentes productos que no sirvan para
-  la misma finalidad culinaria.
-- Si no hay equivalentes, devuelve una lista vacía.
-- Si existen varias opciones equivalentes, devuelve todos sus índices.
-- No selecciones productos únicamente porque contengan palabras similares.
+Debes seleccionar productos que sean adecuados para utilizar
+ese ingrediente en la receta indicada.
 
-Ejemplos:
-- Tomate triturado puede equivaler a tomate triturado de otra marca.
-- Leche entera no equivale a leche condensada.
-- Aceite de oliva no equivale a aceite de girasol.
-- Tomate natural no equivale necesariamente a tomate frito.
+Ten en cuenta lo siguiente:
 
-Devuelve exclusivamente JSON válido:
+1. El producto debe corresponder realmente al ingrediente.
+2. No basta con que el nombre del producto contenga una palabra similar.
+3. Ten en cuenta el tipo de preparación y el uso culinario.
+4. No selecciones productos elaborados que simplemente contengan
+   el ingrediente solicitado.
+5. Prioriza la adecuación a la receta frente al precio.
+6. Si ningún producto es adecuado, devuelve una lista vacía.
 
-{
-    "indices": [0, 2],
-    "motivo": "Se han encontrado productos equivalentes."
-}
+EJEMPLOS:
 
-Si no hay equivalentes:
+Receta: ensalada
+Ingrediente: tomate
+- Correcto: tomate fresco.
+- Incorrecto: tomate triturado, tomate frito o salsa de tomate.
 
-{
-    "indices": [],
-    "motivo": "No se ha encontrado un producto equivalente."
-}
+Receta: paella
+Ingrediente: aceite de oliva
+- Correcto: aceite de oliva.
+- Incorrecto: pan con aceite de oliva.
+
+Receta: pasta con tomate
+Ingrediente: tomate triturado
+- Correcto: tomate triturado.
+- Incorrecto: productos que simplemente contienen tomate.
+
+Receta: limonada
+Ingrediente: limón
+- Correcto: limón fresco.
+- Incorrecto: helado de limón o mantecado de limón.
+
+FORMATO DE RESPUESTA:
+
+Devuelve exclusivamente JSON con los índices de los productos
+seleccionados.
+
+Ejemplo:
+{"indices": [0, 2]}
+
+Si no hay productos adecuados:
+{"indices": []}
 """
 
 
