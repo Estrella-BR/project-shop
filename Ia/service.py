@@ -19,7 +19,7 @@ def analyze_intent(question, tracker=None):
 def send_question(question, top_k=8, tracker=None):
     ingredient_data = generate_ingredients(question, tracker=tracker)
     catalog_results = check_catalog(
-        ingredient_data["ingredientes"],
+    ingredient_data["ingredientes_necesarios"],
         top_k=top_k,
         tracker=tracker,
     )

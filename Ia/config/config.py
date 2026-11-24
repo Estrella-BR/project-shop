@@ -27,3 +27,43 @@ NON_COOKING_ANSWER = (
     "Solo puedo ayudarte con preguntas relacionadas con cocina, "
     "alimentación o productos del catálogo de Mercadona."
 )
+
+
+
+INGREDIENTS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "plato": {
+            "type": "string"
+        },
+        "comensales": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "ingredientes_necesarios": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 15,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "nombre": {
+                        "type": "string"
+                    },
+                    "cantidad": {
+                        "type": "string"
+                    }
+                },
+                "required": ["nombre", "cantidad"],
+                "additionalProperties": False
+            }
+        }
+    },
+    "required": [
+        "plato",
+        "comensales",
+        "ingredientes_necesarios"
+    ],
+    "additionalProperties": False
+}
+

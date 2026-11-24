@@ -6,6 +6,7 @@ from chat import (
     answer_with_intent,
     analyze_intent,
     create_tracker,
+    warm_up_all_parallel,
 )
 from catalog import build_index
 from utils import create_directories
@@ -13,6 +14,44 @@ from utils import create_directories
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
+
+
+def interactive_mode(top_k=8, skip_intent=False, show_resources=False, tracker=None):
+    """Pregunta en bucle hasta que el usuario escriba 'salir' o envíe EOF."""
+    print("Modo interactivo. Escribe tu pregunta ('salir' para terminar).")
+
+    while True:
+        try:
+            question = input("\n> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+
+        if not question:
+            continue
+        if question.lower() in {"salir", "exit", "quit"}:
+            break
+
+        try:
+            result = answer_with_intent(
+                question,
+                top_k=top_k,
+                tracker=tracker,
+                skip_intent=skip_intent,
+            )
+
+            output = dict(result)
+            if show_resources:
+                output["recursos"] = tracker.report()
+
+            print(json.dumps(output, ensure_ascii=False, indent=4))
+
+        except Exception as error:
+            print(json.dumps(
+                {"ok": False, "error": str(error)},
+                ensure_ascii=False,
+                indent=4,
+            ))
 
 
 def main():
@@ -25,6 +64,12 @@ def main():
         "--question",
         type=str,
         help="Realiza una pregunta individual",
+    )
+
+    parser.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Modo interactivo: pregunta varias veces sin reiniciar",
     )
 
     parser.add_argument(
@@ -68,6 +113,7 @@ def main():
             raise ValueError("--top-k debe ser mayor que cero.")
 
         create_directories()
+        warm_up_all_parallel()
 
         if args.analyze_only:
 
@@ -100,6 +146,20 @@ def main():
             force=args.reindex,
             tracker=tracker,
         )
+
+        if args.interactive:
+
+            interactive_mode(
+                top_k=args.top_k,
+                skip_intent=args.no_analyze,
+                show_resources=args.show_resources,
+                tracker=tracker,
+            )
+
+            if args.show_resources:
+                tracker.print_report()
+
+            return 0
 
         if args.question:
 

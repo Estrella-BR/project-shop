@@ -1,10 +1,11 @@
 
 from resource_tracker import ResourceTracker
 from intent import classify_cooking_intent
-
+from concurrent.futures import ThreadPoolExecutor
 from config.config import CHROMA_DIR, NON_COOKING_ANSWER
 from ingredients import generate_ingredients
 from matching import check_catalog
+from llm import warm_up_chat_model, warm_up_embed_model
 
 def create_tracker() -> ResourceTracker:
 
@@ -30,7 +31,7 @@ def send_question(
     )
 
     catalog_results = check_catalog(
-        ingredient_data["ingredientes"],
+        ingredient_data["ingredientes_necesarios"],
         top_k=top_k,
         tracker=tracker,
     )
@@ -38,7 +39,7 @@ def send_question(
     return {
         "plato": ingredient_data["plato"],
         "comensales": ingredient_data["comensales"],
-        "ingredientes_necesarios": ingredient_data["ingredientes"],
+        "ingredientes_necesarios": ingredient_data["ingredientes_necesarios"],
         "comprobacion_catalogo": catalog_results,
     }
 
@@ -85,10 +86,17 @@ def answer_with_intent(
     }
 
 
+def warm_up_all_parallel():
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        f1 = ex.submit(warm_up_chat_model)
+        f2 = ex.submit(warm_up_embed_model)
+        f1.result(); f2.result()
+
 __all__ = [
     "ResourceTracker",
     "analyze_intent",
     "answer_with_intent",
     "create_tracker",
     "send_question",
+    "warm_up_all"
 ]
