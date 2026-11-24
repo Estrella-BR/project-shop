@@ -37,7 +37,7 @@ public class ChatService {
     public ChatService(
             @Value("${app.python.command:python}") String command,
             @Value("${app.python.script:../Ia/main.py}") String scriptPath,
-            @Value("${app.python.chat-timeout-seconds:180}") long timeoutSeconds
+            @Value("${app.python.chat-timeout-seconds:300}") long timeoutSeconds
     ) {
         this.pythonScript = Path.of(scriptPath)
                 .toAbsolutePath()
