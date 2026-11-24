@@ -3,6 +3,7 @@ package estrella.tienda.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +11,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -43,10 +48,6 @@ public class ChatService {
         this.timeoutSeconds = timeoutSeconds;
     }
 
-    // ======================================================
-    // INICIALIZACION
-    // ======================================================
-
     @PostConstruct
     void init() {
 
@@ -64,188 +65,165 @@ public class ChatService {
         );
     }
 
-    // ======================================================
-    // CONSULTAS
-    // ======================================================
+
+    public Object ask(String question, int topK) throws IOException {
+
+        if (question == null || question.isBlank()) {
+            throw new IllegalArgumentException("La pregunta no puede estar vacía.");
+        }
+        if (topK < 1) {
+            throw new IllegalArgumentException("topK debe ser mayor que cero.");
+        }
+
+        log.info("Nueva consulta a Atenea: {}", question);
+
+        JsonNode node = executePython(
+                List.of("--question", question, "--top-k", String.valueOf(topK)),
+                true,
+                timeoutSeconds
+        );
+
+        JsonNode answer = node.path("answer");
+        if (answer.isMissingNode() || answer.isNull()) {
+            throw new IOException("Atenea no ha devuelto ninguna respuesta.");
+        }
+
+        return mapper.convertValue(answer, Object.class);
+    }
+
+    public Object reindex() throws IOException {
+
+        log.info("Lanzando reindex de Atenea...");
+
+        JsonNode node = executePython(
+                List.of("--reindex"),
+                false,
+                1800
+        );
+
+        return mapper.convertValue(node, Object.class);
+    }
 
     public Object ask(String question) throws IOException {
         return ask(question, 8);
     }
 
-    public Object ask(String question, int topK) throws IOException {
+    private JsonNode executePython(List<String> argumentos,
+                                   boolean requireJson,
+                                   long timeoutSegundos) throws IOException {
 
-        if (question == null || question.isBlank()) {
-            throw new IllegalArgumentException(
-                    "La pregunta no puede estar vacía."
-            );
-        }
+        List<String> comando = new ArrayList<>();
+        comando.add(pythonCommand);
+        comando.add("-u");
+        comando.add(pythonScript.toString());
+        comando.addAll(argumentos);
 
-        if (topK < 1) {
-            throw new IllegalArgumentException(
-                    "topK debe ser mayor que cero."
-            );
-        }
+        log.info("Ejecutando Python: {}", comando);
 
-        log.info("Nueva consulta a Atenea: {}", question);
-
-        // --------------------------------------------------
-        // EJECUTAR PYTHON
-        // --------------------------------------------------
-
-        ProcessBuilder pb = new ProcessBuilder(
-                pythonCommand,
-                pythonScript.toString(),
-                "--question",
-                question,
-                "--top-k",
-                String.valueOf(topK)
-        );
-
-        // Mantener stdout y stderr separados.
-        // stdout contiene el JSON y stderr los mensajes de Python.
+        ProcessBuilder pb = new ProcessBuilder(comando);
         pb.redirectErrorStream(false);
 
         Process process = pb.start();
 
-        // Leer ambos streams en paralelo para evitar bloqueos.
-        CompletableFuture<String> outputFuture =
-                CompletableFuture.supplyAsync(() -> {
-                    try (var input = process.getInputStream()) {
-                        return new String(
-                                input.readAllBytes(),
-                                StandardCharsets.UTF_8
-                        );
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-        CompletableFuture<String> errorFuture =
-                CompletableFuture.supplyAsync(() -> {
-                    try (var input = process.getErrorStream()) {
-                        return new String(
-                                input.readAllBytes(),
-                                StandardCharsets.UTF_8
-                        );
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        CompletableFuture<String> stdoutFuture =
+                CompletableFuture.supplyAsync(() -> readStream(process.getInputStream()));
+        CompletableFuture<String> stderrFuture =
+                CompletableFuture.supplyAsync(() -> readStream(process.getErrorStream()));
 
         try {
-
-            // --------------------------------------------------
-            // ESPERAR A PYTHON
-            // --------------------------------------------------
-
-            boolean finished = process.waitFor(
-                    timeoutSeconds,
-                    TimeUnit.SECONDS
-            );
-
+            boolean finished = process.waitFor(timeoutSegundos, TimeUnit.SECONDS);
             if (!finished) {
-
                 process.destroyForcibly();
-
                 throw new IOException(
                         "Atenea ha superado el tiempo máximo de ejecución ("
-                                + timeoutSeconds + "s)."
-                );
+                                + timeoutSegundos + "s).");
             }
 
-            String output = outputFuture.get(
-                    10,
-                    TimeUnit.SECONDS
-            ).trim();
+            String stdout = stdoutFuture.get(10, TimeUnit.SECONDS).trim();
+            String stderr = stderrFuture.get(10, TimeUnit.SECONDS).trim();
 
-            String errorOutput = errorFuture.get(
-                    10,
-                    TimeUnit.SECONDS
-            ).trim();
-
-            if (!errorOutput.isEmpty()) {
-                log.warn("Mensajes de Python:\n{}", errorOutput);
+            if (!stderr.isEmpty()) {
+                log.warn("stderr de Python:\n{}", stderr);
             }
-
-            if (output.isEmpty()) {
-                throw new IOException(
-                        "Python no ha devuelto ninguna respuesta."
-                );
-            }
-
-            // --------------------------------------------------
-            // COMPROBAR CODIGO DE SALIDA
-            // --------------------------------------------------
 
             int exitCode = process.exitValue();
 
+            // ---------- 1. Código de salida distinto de cero ----------
             if (exitCode != 0) {
-
-                log.error("Error ejecutando Python: {}", output);
-
+                log.error("Python falló. exit={} stdout='{}' stderr='{}'",
+                        exitCode, stdout, stderr);
                 throw new IOException(
-                        "Error ejecutando Atenea: " + output
-                );
+                        "Python falló (exit " + exitCode + "). "
+                                + "stdout='" + stdout + "' stderr='" + stderr + "'");
             }
 
-            // --------------------------------------------------
-            // PARSEAR JSON
-            // --------------------------------------------------
+            // ---------- 2. Modo no-JSON (reindex y similares) ----------
+            if (!requireJson) {
+                log.info("Python terminó correctamente (sin JSON requerido).");
+                ObjectNode ok = mapper.createObjectNode();
+                ok.put("ok", true);
+                ok.put("raw", stdout);
+                return ok;
+            }
 
-            JsonNode node = mapper.readTree(output);
+            // ---------- 3. Modo estricto: esperamos JSON ----------
+            if (stdout.isEmpty()) {
+                log.error("Python terminó con exit 0 pero stdout vacío. stderr='{}'", stderr);
+                throw new IOException(
+                        "chat.py no escribió nada por stdout. "
+                                + "stderr fue:\n" + stderr);
+            }
+
+            JsonNode node;
+            try {
+                node = mapper.readTree(stdout);
+            } catch (Exception e) {
+                log.error("JSON inválido. stdout='{}' stderr='{}'", stdout, stderr);
+                throw new IOException(
+                        "Python no devolvió JSON válido:\n" + stdout
+                                + "\nstderr:\n" + stderr, e);
+            }
 
             if (node == null || !node.isObject()) {
                 throw new IOException(
-                        "Python no ha devuelto un JSON válido."
-                );
+                        "Python no devolvió un objeto JSON:\n" + stdout);
             }
 
             if (!node.path("ok").asBoolean(false)) {
-
                 throw new IOException(
                         "Error de Atenea: "
-                                + node.path("error")
-                                .asText("Error desconocido")
-                );
+                                + node.path("error").asText("Error desconocido"));
             }
 
-            JsonNode answer = node.path("answer");
+            return node;
 
-            if (answer.isMissingNode() || answer.isNull()) {
-                throw new IOException(
-                        "Atenea no ha devuelto ninguna respuesta."
-                );
-            }
-
-            log.info("Respuesta de Atenea recibida correctamente.");
-
-            // Devolvemos directamente el contenido de answer.
-            // Puede ser un objeto JSON o un texto de rechazo.
-            return mapper.convertValue(answer, Object.class);
         } catch (InterruptedException e) {
-
             Thread.currentThread().interrupt();
             process.destroyForcibly();
-
-            throw new IOException(
-                    "La ejecución de Atenea fue interrumpida.",
-                    e
-            );
+            throw new IOException("La ejecución de Atenea fue interrumpida.", e);
 
         } catch (ExecutionException | TimeoutException e) {
-
             process.destroyForcibly();
-
-            throw new IOException(
-                    "No se pudo obtener la respuesta de Python.",
-                    e
-            );
+            throw new IOException("No se pudo obtener la respuesta de Python.", e);
 
         } finally {
-
             if (process.isAlive()) {
                 process.destroyForcibly();
             }
         }
     }
+
+    private JsonNode executePython(List<String> argumentos, boolean requireJson)
+            throws IOException {
+        return executePython(argumentos, requireJson, timeoutSeconds);
+    }
+
+    private static String readStream(InputStream input) {
+        try (input) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
 }

@@ -34,4 +34,16 @@ public class ChatBotController {
                 )
         );
     }
+
+    @GetMapping("/reindex")
+    public  ResponseEntity<?> reindex() throws IOException {
+        Object answer = chatService.reindex();
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "ok", true,
+                        "answer", answer
+                )
+        );
+    }
 }
