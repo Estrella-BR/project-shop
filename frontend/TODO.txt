@@ -1,4 +1,9 @@
-ARREGLAR DIA PRICE SCRAPPER
+hacer que el chat se guarde en memoria local del navegador
+
+Mirar --top-k cual es el mejor 
+
+Conectar con los archivos json de todos los supermrercados
+
 
 
 Obtener de más supermercados  (Masymas, Family cash)
@@ -8,9 +13,9 @@ NO CREO POSIBLES: Carrefour, Aldi
 
 hacer controller de limpiador de imagenes
 Hacer que le de igual tildes
-mejorar la busqueda
 
-ejecutar chat.py 
-adaptar posibles cambios por mover el codigo 
+
+
 
 I want to rebuild this project public, use the domain cloud-app.online, and for the subdomain test1, create the ssl, my subdomain already has dns
+dont use docker and use port:8089

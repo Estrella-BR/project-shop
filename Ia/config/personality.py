@@ -1,34 +1,14 @@
-from pathlib import Path
 
-# ==========================================================
-# CONFIGURACION
-# ==========================================================
-
-BASE_DIR = Path(__file__).resolve().parent
-PERSONALITY_PATH = BASE_DIR / "config" / "personality.txt"
-
-
-# ==========================================================
-# CARGA DE PERSONALIDAD
-# ==========================================================
+from config.prompts import PERSONALITY_PROMPT
 
 def load_personality() -> str:
-    """Carga la personalidad desde el archivo de configuración."""
+    """Devuelve el prompt de personalidad de Atenea."""
 
-    if not PERSONALITY_PATH.exists():
-        raise FileNotFoundError(
-            f"No existe el archivo de personalidad: {PERSONALITY_PATH}"
-        )
+    return PERSONALITY_PROMPT
 
-    return PERSONALITY_PATH.read_text(encoding="utf-8")
-
-
-# ==========================================================
-# PROMPT DEL SISTEMA
-# ==========================================================
 
 def build_system_prompt(context: str) -> str:
-    """Combina la personalidad con el contexto RAG."""
+    """Combina la personalidad con el contexto recuperado del catálogo."""
 
     personality = load_personality()
 
@@ -57,3 +37,9 @@ REGLAS IMPORTANTES:
 Si el contexto no contiene información relevante para responder
 sobre un producto, debes reconocerlo.
 """
+
+
+__all__ = [
+    "build_system_prompt",
+    "load_personality",
+]

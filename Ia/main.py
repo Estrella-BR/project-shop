@@ -5,10 +5,10 @@ import argparse
 from chat import (
     answer_with_intent,
     analyze_intent,
-    build_index,
-    create_directories,
     create_tracker,
 )
+from catalog import build_index
+from utils import create_directories
 
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -69,10 +69,6 @@ def main():
 
         create_directories()
 
-        # --------------------------------------------------
-        # SOLO CLASIFICACION DE INTENCION
-        # --------------------------------------------------
-
         if args.analyze_only:
 
             if not args.question:
@@ -100,18 +96,10 @@ def main():
 
             return 0
 
-        # --------------------------------------------------
-        # COMPROBAR O CONSTRUIR INDICE
-        # --------------------------------------------------
-
         build_index(
             force=args.reindex,
             tracker=tracker,
         )
-
-        # --------------------------------------------------
-        # PREGUNTA INDIVIDUAL
-        # --------------------------------------------------
 
         if args.question:
 

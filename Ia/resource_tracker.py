@@ -1,16 +1,3 @@
-# resource_tracker.py
-"""
-Monitor de recursos para Atenea — versión alineada con métricas de Ollama.
-
-Aprovecha lo que Ollama devuelve en cada respuesta:
-  - prompt_eval_count / prompt_eval_duration  (tokens y tiempo del prompt)
-  - eval_count / eval_duration                (tokens y tiempo de generación)
-  - total_duration / load_duration
-
-Con eso calculamos tok/s REALES, que es lo que importa para evaluar
-modelos y comparar configuraciones.
-"""
-
 import sys
 import time
 import threading
@@ -43,7 +30,6 @@ class ResourceTracker:
         self.chroma_dir = Path(chroma_dir) if chroma_dir else None
         self.history_path = Path(history_path) if history_path else None
 
-        # Ollama — datos reales
         self.embed_calls = 0
         self.embed_time_s = 0.0
         self.chat_calls = 0
@@ -54,7 +40,6 @@ class ResourceTracker:
         self.eval_time_ns = 0
         self.load_time_ns = 0
 
-        # Estimaciones de respaldo (solo si Ollama no devuelve campos)
         self.est_input = 0
         self.est_output = 0
 
