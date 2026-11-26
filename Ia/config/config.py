@@ -19,9 +19,14 @@ EMBED_OPTIONS = {
 CHAT_OPTIONS = {
     "num_thread": int(os.environ.get("OLLAMA_CHAT_THREADS", "6")),
     "num_ctx": 4096,
-    "num_predict": int(os.environ.get("OLLAMA_CHAT_MAX_TOKENS", "800")),
+    "num_predict": int(os.environ.get("OLLAMA_CHAT_MAX_TOKENS", "300")),
     "temperature": 0,
 }
+
+# Límite propio para la extracción de ingredientes (JSON largo).
+INGREDIENTS_MAX_TOKENS = int(
+    os.environ.get("OLLAMA_INGREDIENTS_MAX_TOKENS", "800")
+)
 
 NON_COOKING_ANSWER = (
     "Solo puedo ayudarte con preguntas relacionadas con cocina, "

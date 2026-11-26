@@ -2,7 +2,11 @@
 from config.prompts import (
     INGREDIENTS_SYSTEM_PROMPT
 )
-from config.config import INGREDIENTS_SCHEMA
+from config.config import (
+    CHAT_OPTIONS,
+    INGREDIENTS_MAX_TOKENS,
+    INGREDIENTS_SCHEMA,
+)
 from llm import chat
 from utils import extract_json, safe_value
 
@@ -75,7 +79,11 @@ def generate_ingredients(question, tracker=None):
     response = chat(
         messages,
         tracker=tracker,
-        response_format=INGREDIENTS_SCHEMA
+        response_format=INGREDIENTS_SCHEMA,
+        options={
+            **CHAT_OPTIONS,
+            "num_predict": INGREDIENTS_MAX_TOKENS,
+        },
     )
 
     data = extract_json(response["message"]["content"])
