@@ -7,6 +7,11 @@ from config.config import (
     INGREDIENTS_MAX_TOKENS,
     INGREDIENTS_SCHEMA,
 )
+from allergens import (
+    extract_excluded_ingredients,
+    is_excluded,
+    is_zero_quantity,
+)
 from llm import chat
 from utils import extract_json, safe_value
 
@@ -26,42 +31,6 @@ def normalize_text(text):
 
     return re.sub(r"\s+", " ", text)
 
-
-def extract_excluded_ingredients(question):
-
-    exclusions = []
-
-    patterns = [
-        r"\bsin\s+([^,.!?]+)",
-        r"\bno\s+quiero\s+([^,.!?]+)",
-        r"\bno\s+lleve\s+([^,.!?]+)",
-        r"\bno\s+lleva\s+([^,.!?]+)",
-        r"\balergia\s+a\s+([^,.!?]+)"
-    ]
-
-    for pattern in patterns:
-        matches = re.findall(
-            pattern,
-            question.lower()
-        )
-
-        exclusions.extend(matches)
-
-    return [
-        normalize_text(item)
-        for item in exclusions
-    ]
-
-
-def is_excluded(name, exclusions):
-
-    normalized = normalize_text(name)
-
-    return any(
-        exclusion in normalized
-        or normalized in exclusion
-        for exclusion in exclusions
-    )
 
 NUMBER_WORDS = {
     "una": 1, "uno": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
@@ -136,7 +105,7 @@ def generate_ingredients(question, tracker=None):
         name = safe_value(ingredient.get("nombre"))
         quantity = safe_value(ingredient.get("cantidad"))
 
-        if not name:
+        if not name or is_zero_quantity(quantity):
             continue
 
         # Evitar ingredientes repetidos.

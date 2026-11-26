@@ -3,6 +3,7 @@ from resource_tracker import ResourceTracker
 from intent import classify_cooking_intent
 from concurrent.futures import ThreadPoolExecutor
 from config.config import CHROMA_DIR, NON_COOKING_ANSWER
+from allergens import allergy_warning, extract_excluded_ingredients
 from ingredients import generate_ingredients
 from matching import check_catalog
 from llm import warm_up_chat_model, warm_up_embed_model
@@ -25,26 +26,34 @@ def send_question(
     tracker: ResourceTracker | None = None,
 ):
 
+    exclusions = extract_excluded_ingredients(question)
+
     ingredient_data = generate_ingredients(
         question,
         tracker=tracker,
     )
 
-    dish = ingredient_data["plato"]
-
     catalog_results = check_catalog(
         ingredient_data["ingredientes_necesarios"],
-        plato=dish,
+        plato=ingredient_data["plato"],
         top_k=top_k,
         tracker=tracker,
+        exclusions=exclusions,
     )
 
-    return {
+    result = {
         "plato": ingredient_data["plato"],
         "comensales": ingredient_data["comensales"],
         "ingredientes_necesarios": ingredient_data["ingredientes_necesarios"],
         "comprobacion_catalogo": catalog_results,
     }
+
+    if exclusions:
+        result["excluidos"] = exclusions
+        result["aviso"] = allergy_warning(exclusions)
+
+    return result
+
 
 def answer_with_intent(
     question,

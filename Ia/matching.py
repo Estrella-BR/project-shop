@@ -6,6 +6,7 @@ El catálogo no tiene categorías, así que la validación se basa en el nombre.
 import re
 import unicodedata
 
+from allergens import is_excluded
 from catalog import search_products_batch
 from utils import parse_price
 
@@ -123,7 +124,7 @@ def is_valid_product_match(ingredient, product_name):
 # SELECCIÓN
 # ==========================================================
 
-def match_catalog_product(ingredient_name, results):
+def match_catalog_product(ingredient_name, results, exclusions=()):
     """Devuelve el mejor producto válido o None.
 
     Prefiere el nombre más simple y, en caso de empate,
@@ -135,6 +136,10 @@ def match_catalog_product(ingredient_name, results):
         if is_valid_product_match(
             ingredient_name,
             result["metadatos"].get("nombre", ""),
+        )
+        and not is_excluded(
+            result["metadatos"].get("nombre", ""),
+            exclusions,
         )
     ]
 
@@ -167,7 +172,13 @@ def match_catalog_product(ingredient_name, results):
 MIN_CANDIDATES = 200
 
 
-def check_catalog(ingredients, plato=None, top_k=8, tracker=None):
+def check_catalog(
+    ingredients,
+    plato=None,
+    top_k=8,
+    tracker=None,
+    exclusions=(),
+):
     # `plato` no se usa en la búsqueda: añadirlo hacía que se
     # recuperasen platos preparados en lugar de ingredientes.
 
@@ -181,7 +192,11 @@ def check_catalog(ingredients, plato=None, top_k=8, tracker=None):
 
     for ingredient, results in zip(ingredients, all_results):
 
-        product = match_catalog_product(ingredient["nombre"], results)
+        product = match_catalog_product(
+            ingredient["nombre"],
+            results,
+            exclusions=exclusions,
+        )
 
         if tracker and product:
             tracker.track_match()
