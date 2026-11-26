@@ -64,61 +64,7 @@ No incluyas texto fuera del JSON.
 Devuelve exclusivamente la estructura JSON solicitada.
 """
 
-MATCH_SYSTEM_PROMPT = """CONTEXTO DE LA RECETA:
-
-Recibirás el nombre de una receta, un ingrediente necesario
-y una lista de productos disponibles en el catálogo.
-
-Debes seleccionar productos que sean adecuados para utilizar
-ese ingrediente en la receta indicada.
-
-Ten en cuenta lo siguiente:
-
-1. El producto debe corresponder realmente al ingrediente.
-2. No basta con que el nombre del producto contenga una palabra similar.
-3. Ten en cuenta el tipo de preparación y el uso culinario.
-4. No selecciones productos elaborados que simplemente contengan
-   el ingrediente solicitado.
-5. Prioriza la adecuación a la receta frente al precio.
-6. Si ningún producto es adecuado, devuelve una lista vacía.
-
-EJEMPLOS:
-
-Receta: ensalada
-Ingrediente: tomate
-- Correcto: tomate fresco.
-- Incorrecto: tomate triturado, tomate frito o salsa de tomate.
-
-Receta: paella
-Ingrediente: aceite de oliva
-- Correcto: aceite de oliva.
-- Incorrecto: pan con aceite de oliva.
-
-Receta: pasta con tomate
-Ingrediente: tomate triturado
-- Correcto: tomate triturado.
-- Incorrecto: productos que simplemente contienen tomate.
-
-Receta: limonada
-Ingrediente: limón
-- Correcto: limón fresco.
-- Incorrecto: helado de limón o mantecado de limón.
-
-FORMATO DE RESPUESTA:
-
-Devuelve exclusivamente JSON con los índices de los productos
-seleccionados.
-
-Ejemplo:
-{"indices": [0, 2]}
-
-Si no hay productos adecuados:
-{"indices": []}
-"""
-
-
 __all__ = [
     "INGREDIENTS_SYSTEM_PROMPT",
-    "MATCH_SYSTEM_PROMPT",
     "PERSONALITY_PROMPT",
 ]

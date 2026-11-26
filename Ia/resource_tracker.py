@@ -40,13 +40,11 @@ class ResourceTracker:
         self.eval_time_ns = 0
         self.load_time_ns = 0
 
-        self.est_input = 0
-        self.est_output = 0
-
         # RAG
         self.rag_queries = 0
         self.rag_results_total = 0
         self.rag_time_s = 0.0
+        self.product_matches = 0
 
         # Sampling en background
         self._sample_interval = sample_interval
@@ -91,11 +89,10 @@ class ResourceTracker:
 
     # ---------- Tracking ----------
 
-    def track_embed(self, text: str, elapsed_s: float = 0.0):
+    def track_embed(self, elapsed_s: float = 0.0):
         with self._lock:
             self.embed_calls += 1
             self.embed_time_s += elapsed_s
-            self.est_input += max(1, len(text) // 4)
 
     def track_chat(self, response: dict, wall_time_s: float):
         """
@@ -113,11 +110,15 @@ class ResourceTracker:
             self.eval_time_ns += response.get("eval_duration", 0) or 0
             self.load_time_ns += response.get("load_duration", 0) or 0
 
-    def track_rag(self, top_k: int, results: list, elapsed_s: float = 0.0):
+    def track_rag(self, queries: int, results: int, elapsed_s: float = 0.0):
         with self._lock:
-            self.rag_queries += 1
-            self.rag_results_total += len(results)
+            self.rag_queries += queries
+            self.rag_results_total += results
             self.rag_time_s += elapsed_s
+
+    def track_match(self):
+        with self._lock:
+            self.product_matches += 1
 
     # ---------- Informe ----------
 
@@ -149,14 +150,11 @@ class ResourceTracker:
                     "tokens_por_segundo_generacion": round(tok_s_gen, 2),
                     "tokens_por_segundo_prompt": round(tok_s_prompt, 2),
                 },
-                "tokens_estimados": {
-                    "input": self.est_input,
-                    "output": self.est_output,
-                },
                 "rag": {
                     "consultas": self.rag_queries,
                     "productos_recuperados": self.rag_results_total,
-                    "tiempo_s": round(self.rag_time_s, 2),
+                    "tiempo_s": round(self.rag_time_s, 3),
+                    "productos_aceptados": self.product_matches,
                 },
             }
 

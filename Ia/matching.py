@@ -1,12 +1,13 @@
+"""Selección de productos del catálogo mediante reglas (sin LLM).
 
-import json
+El catálogo no tiene categorías, así que la validación se basa en el nombre.
+"""
+
 import re
 import unicodedata
 
-from config.prompts import MATCH_SYSTEM_PROMPT
-from llm import chat
-from catalog import search_products
-from utils import extract_json, parse_price
+from catalog import search_products_batch
+from utils import parse_price
 
 
 # ==========================================================
@@ -26,190 +27,164 @@ def normalize_text(text):
     return re.sub(r"[^a-z0-9]+", " ", text).strip()
 
 
-def get_tokens(text):
-    ignored = {"de", "del", "la", "el", "los", "las", "y", "a"}
+def same_word(a, b):
+    """Compara dos palabras admitiendo singular y plural."""
 
-    return {
-        token
-        for token in normalize_text(text).split()
-        if token not in ignored
-    }
+    return a == b or a in (b + "s", b + "es") or b in (a + "s", a + "es")
 
 
 # ==========================================================
-# VALIDACIÓN SEMÁNTICA DETERMINISTA
+# REGLAS DE VALIDACIÓN
 # ==========================================================
 
-# Tipos de productos que no deben confundirse con ingredientes.
-INVALID_PRODUCT_TERMS = {
-    "aceite de oliva": {
-        "pan", "barra", "galleta", "bizcocho",
-        "mantecado", "snack", "patatas",
-    },
-    "limon": {
-        "mantecado", "helado", "galleta", "bizcocho",
-        "caramelo", "refresco", "yogur", "pastel",
-        "zumo", "bebida",
-    },
-    "tomate": {
-        "triturado", "frito", "salsa", "ketchup",
-        "concentrado", "pure", "zumo", "sopa",
-    },
+# Palabras del ingrediente que no ayudan a identificar el producto.
+IGNORED_MODIFIERS = {
+    "fresco", "fresca", "frescos", "frescas",
+    "picado", "picada", "picados", "picadas",
+    "maduro", "madura", "maduros", "maduras",
 }
+
+# Variante que se busca cuando el ingrediente es genérico.
+PREFERRED_VARIANTS = {
+    "aceite": "aceite de oliva",
+    "sal": "sal fina",
+    "harina": "harina de trigo",
+    "azucar": "azucar blanco",
+    "leche": "leche entera",
+    "espagueti": "spaghetti",
+    "espaguetis": "spaghetti",
+}
+
+# Productos elaborados o no alimentarios. Un término solo descarta el
+# producto si el usuario no lo ha pedido en el ingrediente.
+BLOCKED_TERMS = {
+    "sorpresa", "chocolate", "chocolateado", "galleta", "bizcocho",
+    "mantecado", "helado", "caramelo", "caramelizada", "snack", "tortas",
+    "frito", "frita", "fritos", "fritas", "prefritas", "crujiente",
+    "sabor", "relleno", "rellenos", "rellenas", "rebozado", "listo",
+    "facial", "corporal", "lactantes", "continuacion", "lavavajillas",
+    "limpieza", "condensada", "codorniz", "cocido", "cocidos", "cocida",
+    "polvo", "salsa", "light",
+}
+
+# Términos que además descartan un ingrediente concreto.
+INVALID_PRODUCT_TERMS = {
+    "limon": {"refresco", "yogur", "pastel", "zumo", "bebida"},
+    "tomate": {"triturado", "concentrado", "pure", "zumo", "sopa", "ketchup"},
+    "patata": {"tortilla"},
+}
+
+
+def search_phrase(ingredient):
+    """Nombre del ingrediente tal y como se busca en el catálogo."""
+
+    # Quitar aclaraciones: "huevos (grandes)", "aceite, para freír".
+    text = re.split(r"[(,]", str(ingredient or ""))[0]
+
+    words = [
+        word for word in normalize_text(text).split()
+        if word not in IGNORED_MODIFIERS
+    ]
+    phrase = " ".join(words)
+
+    return PREFERRED_VARIANTS.get(phrase, phrase)
 
 
 def is_valid_product_match(ingredient, product_name):
 
-    ingredient_normalized = normalize_text(ingredient)
-    product_normalized = normalize_text(product_name)
+    wanted = search_phrase(ingredient).split()
+    product = normalize_text(product_name).split()
 
-    if not ingredient_normalized or not product_normalized:
+    if not wanted or len(product) < len(wanted):
         return False
 
-    ingredient_tokens = get_tokens(ingredient_normalized)
-    product_tokens = get_tokens(product_normalized)
-
-    # No aceptar productos que no contengan los términos
-    # principales del ingrediente.
-    if not ingredient_tokens.issubset(product_tokens):
+    # El nombre del producto debe EMPEZAR por el ingrediente:
+    # descarta "Tortas de aceite" al buscar "aceite".
+    if not all(same_word(w, p) for w, p in zip(wanted, product)):
         return False
 
-    # Evitar confusiones entre ingredientes y productos procesados.
-    forbidden_terms = INVALID_PRODUCT_TERMS.get(
-        ingredient_normalized,
-        set()
+    # "Ajo y perejil" o "Patatas con jamón" son otro producto.
+    rest = product[len(wanted):]
+    if rest and rest[0] in {"y", "con", "sabor"}:
+        return False
+
+    blocked = set(BLOCKED_TERMS)
+    for key, terms in INVALID_PRODUCT_TERMS.items():
+        if any(same_word(key, word) for word in wanted):
+            blocked |= terms
+
+    return not any(
+        word in blocked and not any(same_word(word, w) for w in wanted)
+        for word in rest
     )
 
-    if forbidden_terms.intersection(product_tokens):
-        return False
-
-    return True
-
 
 # ==========================================================
-# SELECCIÓN MEDIANTE OLLAMA
+# SELECCIÓN
 # ==========================================================
 
-def match_catalog_product(ingredient, results, plato=None, tracker=None):
+def match_catalog_product(ingredient_name, results):
+    """Devuelve el mejor producto válido o None.
 
-    if not results:
-        return None
+    Prefiere el nombre más simple y, en caso de empate,
+    el más cercano en ChromaDB.
+    """
 
-    candidates = []
-
-    for index, result in enumerate(results):
-
-        metadata = result["metadatos"]
-
-        candidates.append({
-            "indice": index,
-            "nombre": metadata.get("nombre"),
-            "precio": metadata.get("precio"),
-            "formato": metadata.get("formato"),
-            "vendedor": metadata.get("vendedor"),
-            "distancia": result.get("distancia"),
-        })
-
-    messages = [
-        {
-            "role": "system",
-            "content": MATCH_SYSTEM_PROMPT
-        },
-        {
-            "role": "user",
-            "content": json.dumps(
-                {
-                    "ingrediente": ingredient["nombre"],
-                    "cantidad_necesaria": ingredient["cantidad"],
-                    "productos_catalogo": candidates
-                },
-                ensure_ascii=False
-            )
-        }
+    valid = [
+        result for result in results
+        if is_valid_product_match(
+            ingredient_name,
+            result["metadatos"].get("nombre", ""),
+        )
     ]
 
-    response = chat(
-        messages,
-        tracker=tracker,
-        response_format="json"
-    )
-
-    selection = extract_json(
-        response["message"]["content"]
-    )
-
-    indices = selection.get("indices", [])
-
-    if not isinstance(indices, list):
+    if not valid:
         return None
 
-    # Mantener el orden de relevancia propuesto por Ollama.
-    # No ordenar por precio antes de validar.
+    best = min(
+        valid,
+        key=lambda r: (
+            len(normalize_text(r["metadatos"].get("nombre")).split()),
+            r.get("distancia", 0),
+        ),
+    )
+    metadata = best["metadatos"]
 
-    for index in indices:
-
-        if (
-            not isinstance(index, int)
-            or isinstance(index, bool)
-            or not 0 <= index < len(results)
-        ):
-            continue
-
-        metadata = results[index]["metadatos"]
-
-        product_name = metadata.get("nombre", "")
-
-        # Segunda barrera: validación independiente de Ollama.
-        if not is_valid_product_match(
-            ingredient["nombre"],
-            product_name
-        ):
-            continue
-
-        return {
-            "nombre": product_name,
-            "precio": parse_price(metadata.get("precio")),
-            "formato": metadata.get("formato"),
-            "vendedor": metadata.get("vendedor"),
-            "imagen": metadata.get("imagen")
-        }
-
-    return None
+    return {
+        "nombre": metadata.get("nombre", ""),
+        "precio": parse_price(metadata.get("precio")),
+        "formato": metadata.get("formato"),
+        "vendedor": metadata.get("vendedor"),
+        "imagen": metadata.get("imagen")
+    }
 
 
 # ==========================================================
 # COMPROBACIÓN DEL CATÁLOGO
 # ==========================================================
 
+# Los candidatos no pasan por el LLM, así que revisar muchos es barato.
+MIN_CANDIDATES = 200
+
+
 def check_catalog(ingredients, plato=None, top_k=8, tracker=None):
+    # `plato` no se usa en la búsqueda: añadirlo hacía que se
+    # recuperasen platos preparados en lugar de ingredientes.
+
+    all_results = search_products_batch(
+        [search_phrase(item["nombre"]) or item["nombre"] for item in ingredients],
+        top_k=max(top_k, MIN_CANDIDATES),
+        tracker=tracker,
+    )
 
     catalog_results = []
 
-    for ingredient in ingredients:
+    for ingredient, results in zip(ingredients, all_results):
 
-        # Construimos una búsqueda teniendo en cuenta la receta.
-        search_query = ingredient["nombre"]
+        product = match_catalog_product(ingredient["nombre"], results)
 
-        if plato:
-            search_query = (
-                f"{ingredient['nombre']} "
-                f"para preparar {plato}"
-            )
-
-        # Recuperamos los productos más relevantes de ChromaDB.
-        results = search_products(
-            search_query,
-            top_k=top_k,
-            tracker=tracker
-        )
-
-        # Ollama selecciona teniendo en cuenta el contexto.
-        product = match_catalog_product(
-            ingredient,
-            results,
-            plato=plato,
-            tracker=tracker
-        )
+        if tracker and product:
+            tracker.track_match()
 
         catalog_results.append({
             "ingrediente": ingredient["nombre"],

@@ -63,7 +63,36 @@ def is_excluded(name, exclusions):
         for exclusion in exclusions
     )
 
+NUMBER_WORDS = {
+    "una": 1, "uno": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+    "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10,
+}
+
+
+def extract_servings(question):
+    """Número de comensales indicado en la pregunta, o None."""
+
+    text = normalize_text(question)
+    number = r"(\d{1,3}|" + "|".join(NUMBER_WORDS) + r")"
+    people = r"(?:personas?|comensales?|raciones|racion)"
+
+    match = (
+        re.search(rf"\b{number}\s+{people}\b", text)
+        or re.search(rf"\bpara\s+{number}\b(?!\s*(?:minutos?|horas?|dias?))", text)
+    )
+
+    if not match:
+        return None
+
+    value = match.group(1)
+    servings = int(value) if value.isdigit() else NUMBER_WORDS[value]
+
+    return servings if servings > 0 else None
+
+
 def generate_ingredients(question, tracker=None):
+
+    servings = extract_servings(question)
 
     messages = [
         {
@@ -72,7 +101,7 @@ def generate_ingredients(question, tracker=None):
         },
         {
             "role": "user",
-            "content": question
+            "content": f"{question}\nComensales: {servings or 2}"
         }
     ]
 
@@ -132,7 +161,7 @@ def generate_ingredients(question, tracker=None):
         )
 
     try:
-        comensales = int(data.get("comensales", 2))
+        comensales = servings or int(data.get("comensales", 2))
     except (ValueError, TypeError):
         comensales = 2
 

@@ -1,5 +1,6 @@
 import sys
 import json
+import time
 
 import chromadb
 
@@ -192,50 +193,78 @@ def build_index(force=False, tracker=None):
             ],
         )
 
-def search_products(
-    question,
+def search_products_batch(
+    queries,
     top_k=8,
     tracker=None,
 ):
+    """Busca varias consultas con una sola llamada de embeddings
+    y una sola consulta a ChromaDB."""
+
+    if not queries:
+        return []
 
     collection = get_collection()
 
     total = collection.count()
 
     if total == 0:
-        return []
+        return [[] for _ in queries]
 
-    embedding_response = embed(question, tracker=tracker)
+    # Mismo modelo de embeddings con el que se creó el índice.
+    embeddings = embed(list(queries), tracker=tracker)["embeddings"]
 
-    embedding = embedding_response["embeddings"][0]
+    t0 = time.perf_counter()
 
     results = collection.query(
-        query_embeddings=[embedding],
+        query_embeddings=embeddings,
         n_results=min(top_k, total),
         include=["documents", "metadatas", "distances"],
     )
 
-    documents = results["documents"][0] or []
-    metadatas = results["metadatas"][0] or []
-    distances = results["distances"][0] or []
-
-    return [
-        {
-            "texto": document,
-            "metadatos": metadata,
-            "distancia": distance,
-        }
-        for document, metadata, distance in zip(
-            documents,
-            metadatas,
-            distances,
+    batch = [
+        [
+            {
+                "texto": document,
+                "metadatos": metadata,
+                "distancia": distance,
+            }
+            for document, metadata, distance in zip(
+                documents,
+                metadatas,
+                distances,
+            )
+            if document is not None
+        ]
+        for documents, metadatas, distances in zip(
+            results["documents"],
+            results["metadatas"],
+            results["distances"],
         )
-        if document is not None
     ]
+
+    if tracker:
+        tracker.track_rag(
+            queries=len(queries),
+            results=sum(len(items) for items in batch),
+            elapsed_s=time.perf_counter() - t0,
+        )
+
+    return batch
+
+
+def search_products(
+    question,
+    top_k=8,
+    tracker=None,
+):
+
+    return search_products_batch([question], top_k=top_k, tracker=tracker)[0]
 
 __all__ = [
     "build_index",
     "get_collection",
     "load_products",
     "search_products",
+    "search_products_batch",
 ]

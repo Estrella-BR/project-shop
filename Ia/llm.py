@@ -46,15 +46,7 @@ def embed(text_or_texts, tracker=None):
     )
 
     if tracker:
-        text_for_log = (
-            text_or_texts
-            if isinstance(text_or_texts, str)
-            else " ".join(text_or_texts)
-        )
-        tracker.track_embed(
-            text_for_log,
-            elapsed_s=time.perf_counter() - t0,
-        )
+        tracker.track_embed(elapsed_s=time.perf_counter() - t0)
 
     return response
 
